@@ -35,11 +35,13 @@ app/
 - [x] P6 템플릿 4종 — 클릭 시 즉시 가중치 반영·재정렬 확인
 - [x] P7 PWA + 백업(JSON) + 공유(URL해시) — 서비스워커 캐시 9개 파일 전부 확인, 공유링크 왕복 확인
 - [x] git init + 로컬 커밋 완료 (dcfe89b)
-- [ ] **P8 GitHub 원격 저장소 생성 + push + Pages 배포 — auto mode 권한 분류기가 차단함.**
-      `gh repo create jobscale --public --source=. --push` 를 사용자가 직접
-      (터미널에서 `!` 접두사로) 실행해야 함. 이후 저장소 Settings → Pages →
-      Source: `main`브랜치 `/app` 폴더로 설정하면 배포 끝.
+- [x] P8 GitHub 저장소 생성(사용자 직접 실행) + push + Pages 배포 완료
+      **배포 URL: https://bjgb1004-afk.github.io/jobscale/**
+      (app/ → docs/로 이동: GitHub Pages classic source가 /docs만 지원, /app 불가)
+      Pages 소스: main 브랜치 /docs, 빌드 확인(status: built), 실제 접속·SW 등록·
+      템플릿 클릭까지 라이브 사이트에서 재검증 완료
 - [ ] P9 Bubblewrap TWA — 사용자의 Google Play Console 계정 필요, 안내만 완료
+      (개발체크리스트.md P9 항목 참고, 배포 URL이 위 Pages 주소로 고정된 뒤 진행)
 
 ## 테스트 중 발견·수정한 버그 3건
 1. `clone()`이 `Object.assign({}, [])`로 배열을 `{}`로 바꿔버려 공고 저장 시
