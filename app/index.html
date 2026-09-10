@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>나에게 맞는 직장 계산기</title>
+<meta name="theme-color" content="#2f6f4f">
+<meta name="description" content="여러 채용공고를 내 우선순위대로 채점해 순위를 매겨주는 계산기. 서버·가입 없이 무료로 사용합니다.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232f6f4f'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='white' font-family='sans-serif'%3E%E2%9A%96%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <h1 data-i18n="app.title"></h1>
+  <nav class="topnav">
+    <button type="button" data-nav="home" data-i18n="nav.home"></button>
+    <button type="button" data-nav="criteria" data-i18n="nav.criteria"></button>
+    <button type="button" data-nav="compare" data-i18n="nav.compare"></button>
+  </nav>
+</header>
+
+<div id="share-banner" class="banner" hidden data-i18n="share.viewOnly"></div>
+
+<main>
+
+  <!-- ① 홈 -->
+  <section id="view-home" class="view">
+    <p class="question" data-i18n="home.question"></p>
+    <div class="template-row">
+      <button type="button" class="template-btn" data-template="parenting" data-i18n="template.parenting"></button>
+      <button type="button" class="template-btn" data-template="money" data-i18n="template.money"></button>
+      <button type="button" class="template-btn" data-template="easy" data-i18n="template.easy"></button>
+      <button type="button" class="template-btn" data-template="balance" data-i18n="template.balance"></button>
+      <button type="button" class="template-btn ghost" data-template="custom" data-i18n="template.custom"></button>
+    </div>
+
+    <h2 id="job-count-label"></h2>
+    <p id="explain-text" class="explain"></p>
+    <div id="job-list"></div>
+
+    <div class="action-row">
+      <button type="button" id="add-job-btn" class="primary" data-i18n="home.addJob"></button>
+      <button type="button" data-nav="compare" data-i18n="home.compareBtn"></button>
+      <button type="button" data-nav="criteria" data-i18n="home.editCriteria"></button>
+    </div>
+
+    <div class="action-row secondary-row">
+      <button type="button" id="share-btn" data-i18n="share.link"></button>
+      <button type="button" id="backup-export-btn" data-i18n="backup.export"></button>
+      <label class="file-label">
+        <span data-i18n="backup.import"></span>
+        <input type="file" id="backup-import-input" accept="application/json" hidden>
+      </label>
+    </div>
+  </section>
+
+  <!-- ② 내 기준 (중요도 + 필수조건 + 희망값) -->
+  <section id="view-criteria" class="view" hidden>
+    <h2 data-i18n="criteria.title"></h2>
+
+    <div id="criteria-live-rank" class="live-rank"></div>
+
+    <h3 data-i18n="criteria.weightHeader"></h3>
+    <div class="weight-list">
+      <!-- 항목당: 라벨 + 네이티브 range 슬라이더(0~5) + 별 표시. 라이브러리 없음. -->
+      <div class="weight-row">
+        <label data-i18n="weight.pay"></label>
+        <input type="range" min="0" max="5" step="1" data-weight="pay">
+        <span class="star-label" data-star-label="pay"></span>
+      </div>
+      <div class="weight-row">
+        <label data-i18n="weight.commute"></label>
+        <input type="range" min="0" max="5" step="1" data-weight="commute">
+        <span class="star-label" data-star-label="commute"></span>
+      </div>
+      <div class="weight-row">
+        <label data-i18n="weight.endTime"></label>
+        <input type="range" min="0" max="5" step="1" data-weight="endTime">
+        <span class="star-label" data-star-label="endTime"></span>
+      </div>
+      <div class="weight-row">
+        <label data-i18n="weight.startTime"></label>
+        <input type="range" min="0" max="5" step="1" data-weight="startTime">
+        <span class="star-label" data-star-label="startTime"></span>
+      </div>
+      <div class="weight-row">
+        <label data-i18n="weight.days"></label>
+        <input type="range" min="0" max="5" step="1" data-weight="days">
+        <span class="star-label" data-star-label="days"></span>
+      </div>
+      <div class="weight-row">
+        <label data-i18n="weight.intensity"></label>
+        <input type="range" min="0" max="5" step="1" data-weight="intensity">
+        <span class="star-label" data-star-label="intensity"></span>
+      </div>
+      <div class="weight-row">
+        <label data-i18n="weight.stability"></label>
+        <input type="range" min="0" max="5" step="1" data-weight="stability">
+        <span class="star-label" data-star-label="stability"></span>
+      </div>
+    </div>
+
+    <h3 data-i18n="criteria.limitHeader"></h3>
+    <div class="limit-list">
+      <div class="field-row">
+        <label for="limit-minPay" data-i18n="limit.minPay"></label>
+        <input type="number" id="limit-minPay" min="0" inputmode="numeric" placeholder="—">
+        <span data-i18n="unit.manwon"></span>
+      </div>
+      <div class="field-row">
+        <label for="limit-maxEndTime" data-i18n="limit.maxEndTime"></label>
+        <input type="time" id="limit-maxEndTime">
+      </div>
+      <div class="field-row">
+        <label for="limit-maxCommute" data-i18n="limit.maxCommute"></label>
+        <input type="number" id="limit-maxCommute" min="0" inputmode="numeric" placeholder="—">
+        <span data-i18n="unit.min"></span>
+      </div>
+      <div class="field-row">
+        <label for="limit-maxDays" data-i18n="limit.maxDays"></label>
+        <input type="number" id="limit-maxDays" min="1" max="7" inputmode="numeric" placeholder="—">
+        <span data-i18n="unit.day"></span>
+      </div>
+    </div>
+
+    <details class="target-details">
+      <summary data-i18n="criteria.targetHeader"></summary>
+      <div class="field-row">
+        <label for="target-commute" data-i18n="target.commute"></label>
+        <input type="number" id="target-commute" min="0" inputmode="numeric">
+        <span data-i18n="unit.min"></span>
+      </div>
+      <div class="field-row">
+        <label for="target-endTime" data-i18n="target.endTime"></label>
+        <input type="time" id="target-endTime">
+      </div>
+      <div class="field-row">
+        <label for="target-startTime" data-i18n="target.startTime"></label>
+        <input type="time" id="target-startTime">
+      </div>
+      <div class="field-row">
+        <label for="target-days" data-i18n="target.days"></label>
+        <input type="number" id="target-days" min="1" max="7" inputmode="numeric">
+        <span data-i18n="unit.day"></span>
+      </div>
+    </details>
+
+    <div class="action-row">
+      <button type="button" id="criteria-save-btn" class="primary" data-i18n="criteria.save"></button>
+      <button type="button" data-nav="home" data-i18n="compare.back"></button>
+    </div>
+  </section>
+
+  <!-- ③ 공고 등록 -->
+  <section id="view-jobform" class="view" hidden>
+    <h2 data-i18n="job.formTitle"></h2>
+
+    <div class="field-row">
+      <label for="jf-name" data-i18n="job.name"></label>
+      <input type="text" id="jf-name" maxlength="40">
+      <span class="field-error" id="jf-name-err"></span>
+    </div>
+
+    <div class="field-row">
+      <label for="jf-payAmount" data-i18n="job.pay"></label>
+      <input type="number" id="jf-payAmount" min="0" inputmode="numeric">
+      <select id="jf-payType">
+        <option value="monthly" data-i18n="job.payType.monthly"></option>
+        <option value="hourly" data-i18n="job.payType.hourly"></option>
+      </select>
+      <span class="field-error" id="jf-payAmount-err"></span>
+    </div>
+
+    <div class="field-row">
+      <label for="jf-start" data-i18n="job.start"></label>
+      <input type="time" id="jf-start">
+      <span class="field-error" id="jf-start-err"></span>
+      <label for="jf-end" data-i18n="job.end"></label>
+      <input type="time" id="jf-end">
+      <span class="field-error" id="jf-end-err"></span>
+    </div>
+
+    <div class="field-row">
+      <label for="jf-days" data-i18n="job.days"></label>
+      <input type="number" id="jf-days" min="1" max="7" value="5">
+      <span data-i18n="unit.day"></span>
+    </div>
+
+    <div class="field-row">
+      <label for="jf-commute" data-i18n="job.commute"></label>
+      <input type="number" id="jf-commute" min="0" inputmode="numeric">
+      <span data-i18n="unit.min"></span>
+      <span class="field-error" id="jf-commute-err"></span>
+    </div>
+
+    <details class="jobform-more">
+      <summary data-i18n="job.more"></summary>
+      <div class="field-row">
+        <label for="jf-break" data-i18n="job.break"></label>
+        <input type="number" id="jf-break" min="0" value="0">
+        <span data-i18n="unit.min"></span>
+      </div>
+      <div class="field-row">
+        <label for="jf-intensity" data-i18n="job.intensity"></label>
+        <select id="jf-intensity"></select>
+      </div>
+      <div class="field-row">
+        <label for="jf-employmentType" data-i18n="job.employmentType"></label>
+        <select id="jf-employmentType"></select>
+      </div>
+      <div class="field-row">
+        <label for="jf-insurance" data-i18n="job.insurance"></label>
+        <input type="checkbox" id="jf-insurance">
+      </div>
+    </details>
+
+    <div class="action-row">
+      <button type="button" id="jobform-save-btn" class="primary" data-i18n="job.save"></button>
+      <button type="button" id="jobform-cancel-btn" data-i18n="job.cancel"></button>
+      <button type="button" id="jf-delete" class="danger" hidden data-i18n="job.delete"></button>
+    </div>
+  </section>
+
+  <!-- ④ 나란히 비교 -->
+  <section id="view-compare" class="view" hidden>
+    <h2 data-i18n="compare.title"></h2>
+    <div id="compare-table-wrap" class="scroll-x"></div>
+    <div class="action-row">
+      <button type="button" data-nav="home" data-i18n="compare.back"></button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p data-i18n="app.footer.disclaimer"></p>
+</footer>
+
+<script src="js/strings.ko.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/score.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
