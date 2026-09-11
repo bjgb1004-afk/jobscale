@@ -167,7 +167,7 @@ h3 { font-size: 0.9rem; color: var(--muted); margin: 1.2rem 0 0.4rem; }
 .field-row span:not(.field-error) { font-size: 0.8rem; color: var(--muted); }
 .field-error { flex-basis: 100%; color: var(--danger); font-size: 0.78rem; }
 
-details.target-details, details.jobform-more {
+details.target-details, details.jobform-more, details.copy-help {
   border: 1px solid var(--border); border-radius: var(--radius);
   padding: 0.6rem 0.8rem; margin-top: 0.8rem; background: var(--surface);
 }

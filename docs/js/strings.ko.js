@@ -86,6 +86,8 @@ var STRINGS_KO = {
   'unit.hour': '시간',
 
   'job.formTitle': '공고 등록',
+  'job.copyHelp.summary': '💡 공고 복사가 안 될 때',
+  'job.copyHelp.body': '채용 사이트에서 드래그·복사가 막혀 있다면, 화면을 길게 눌러 "서클 투 서치"나 "구글 렌즈"의 텍스트 선택 기능으로 화면에 보이는 글자를 복사할 수 있어요(화면 자체를 읽는 기능이라 사이트가 막아둔 것과 상관없이 됩니다). 그래도 안 되면 화면을 보면서 아래 항목에 직접 입력하면 됩니다.',
   'job.name': '회사명',
   'job.pay': '급여',
   'job.payType.monthly': '월급',
