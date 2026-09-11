@@ -21,8 +21,9 @@
     var s = dict()[key];
     if (s == null) return key; // 키 없으면 키 자체를 보여줘 누락을 눈에 띄게 함
     if (vars) {
-      Object.keys(vars).forEach(function (k) {
-        s = s.split('{' + k + '}').join(String(vars[k]));
+      // 한 번의 패스로만 치환 — 치환된 값 안에 다른 {키} 문자열이 들어있어도 재치환되지 않게 함
+      s = s.replace(/\{(\w+)\}/g, function (m, k) {
+        return Object.prototype.hasOwnProperty.call(vars, k) ? String(vars[k]) : m;
       });
     }
     return s;

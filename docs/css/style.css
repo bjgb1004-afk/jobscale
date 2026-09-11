@@ -81,6 +81,10 @@ main { max-width: 640px; margin: 0 auto; padding: 1rem; }
   color: var(--accent);
   border: 1px dashed var(--accent);
 }
+.template-btn.active {
+  box-shadow: inset 0 0 0 3px var(--text);
+}
+.template-btn.active::after { content: ' ✓'; }
 
 h2 { font-size: 1rem; color: var(--muted); margin: 1.2rem 0 0.5rem; }
 h3 { font-size: 0.9rem; color: var(--muted); margin: 1.2rem 0 0.4rem; }

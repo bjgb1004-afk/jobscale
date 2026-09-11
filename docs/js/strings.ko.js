@@ -20,7 +20,7 @@ var KO_JOSA = {
 };
 
 var STRINGS_KO = {
-  'app.title': '나에게 맞는 직장 계산기',
+  'app.title': '잡스코어',
   'app.footer.disclaimer': '이 점수는 회사 평가가 아니라 내 기준 적합도입니다.',
 
   'nav.home': '홈',
@@ -144,6 +144,7 @@ var STRINGS_KO = {
   'share.link': '결과 링크 공유',
   'share.copied': '링크가 복사되었습니다.',
   'share.viewOnly': '공유받은 결과입니다 (읽기 전용)',
+  'share.overwriteConfirm': '지금 수정하면 원래 내 데이터가 이 공유 결과로 덮어써집니다. 계속할까요?',
 
   'pwa.install': '홈 화면에 추가'
 };

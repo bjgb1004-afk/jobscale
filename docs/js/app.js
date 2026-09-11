@@ -36,7 +36,15 @@
       return clone(fallback);
     }
   }
+  // 공유 링크로 열람 중(state.viewOnly)일 때 첫 저장 시도는 "내 원래 데이터를 덮어쓴다"는
+  // 확인을 한 번 받는다 — 그 전엔 아무 것도 localStorage에 쓰지 않는다.
   function persist(key, value) {
+    if (state.viewOnly) {
+      if (!confirm(t('share.overwriteConfirm'))) return;
+      state.viewOnly = false;
+      var banner = document.getElementById('share-banner');
+      if (banner) banner.hidden = true;
+    }
     try { localStorage.setItem(key, JSON.stringify(value)); }
     catch (e) { /* ponytail: 저장공간 초과 등은 조용히 무시 — 다음 저장 때 재시도됨 */ }
   }
@@ -46,7 +54,9 @@
     weights: load(STORAGE_KEYS.weights, DEFAULT_WEIGHTS),
     limits: load(STORAGE_KEYS.limits, DEFAULT_LIMITS),
     targets: load(STORAGE_KEYS.targets, JobScore.DEFAULT_TARGETS),
-    editingJobId: null
+    editingJobId: null,
+    viewOnly: false,
+    activeTemplate: null
   };
 
   function persistJobs() { persist(STORAGE_KEYS.jobs, state.jobs); }
@@ -60,6 +70,24 @@
     });
   }
   function uid() { return 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  // 백업 파일/공유 링크처럼 외부에서 들어온 데이터는 형태가 깨져 있을 수 있어, 점수 계산이
+  // 필요로 하는 최소 필드(pay.amount/pay.unit, start, end)가 없는 job은 걸러낸다.
+  function sanitizeJobs(list) {
+    if (!Array.isArray(list)) return [];
+    return list.filter(function (j) {
+      return j && typeof j === 'object' && j.pay && typeof j.pay.amount === 'number' &&
+        typeof j.pay.unit === 'string' && typeof j.start === 'string' && typeof j.end === 'string';
+    });
+  }
+  function clampWeights(weights) {
+    var out = clone(DEFAULT_WEIGHTS);
+    if (weights) {
+      JobScore.SCORE_KEYS.forEach(function (k) {
+        if (typeof weights[k] === 'number') out[k] = Math.max(0, Math.min(5, Math.round(weights[k])));
+      });
+    }
+    return out;
+  }
   function numOrNull(v) {
     if (v === '' || v == null) return null;
     var n = Number(v);
@@ -67,16 +95,30 @@
   }
 
   // ---------- 라우팅 (네이티브 hidden 속성, 프레임워크 없음) ----------
-  function showView(name) {
+  // history.pushState로 화면 이동을 기록해서, 안드로이드/브라우저 뒤로가기가
+  // 앱을 바로 이탈하지 않고 이전 화면(홈)으로 돌아오게 한다. fromPopstate가 true면
+  // (뒤로가기로 호출된 경우) 다시 pushState하지 않아 히스토리가 쌓이지 않게 한다.
+  function showView(name, fromPopstate) {
     document.querySelectorAll('.view').forEach(function (v) { v.hidden = (v.id !== 'view-' + name); });
     if (name === 'criteria') renderCriteria();
     if (name === 'compare') renderCompare();
     if (name === 'home') renderHome();
     window.scrollTo(0, 0);
+    if (!fromPopstate) {
+      if (name === 'home') history.replaceState({ view: 'home' }, '');
+      else history.pushState({ view: name }, '');
+    }
   }
 
   // ---------- 홈 ----------
+  function updateTemplateButtons() {
+    document.querySelectorAll('[data-template]').forEach(function (btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-template') === state.activeTemplate);
+    });
+  }
+
   function renderHome() {
+    updateTemplateButtons();
     var result = JobScore.rankJobs(state.jobs, state.weights, state.targets, state.limits);
     var listEl = document.getElementById('job-list');
     var explainEl = document.getElementById('explain-text');
@@ -173,6 +215,7 @@
   function applyTemplate(name) {
     if (name === 'custom') { showView('criteria'); return; }
     state.weights = clone(TEMPLATES[name]);
+    state.activeTemplate = name;
     persistWeights();
     showView('home');
   }
@@ -198,7 +241,7 @@
   }
 
   function updateStarLabel(key) {
-    var v = state.weights[key] || 0;
+    var v = Math.max(0, Math.min(5, state.weights[key] || 0));
     var el = document.querySelector('[data-star-label="' + key + '"]');
     if (el) el.textContent = '★'.repeat(v) + '☆'.repeat(5 - v);
   }
@@ -217,6 +260,7 @@
   }
 
   function saveCriteria() {
+    state.activeTemplate = null; // 직접 조정했으니 더 이상 어느 템플릿과도 일치한다고 표시하지 않음
     JobScore.SCORE_KEYS.forEach(function (key) {
       var input = document.querySelector('[data-weight="' + key + '"]');
       if (input) state.weights[key] = parseInt(input.value, 10) || 0;
@@ -226,10 +270,12 @@
     state.limits.maxCommute = numOrNull(document.getElementById('limit-maxCommute').value);
     state.limits.maxDays = numOrNull(document.getElementById('limit-maxDays').value);
 
-    state.targets.commuteTarget = parseInt(document.getElementById('target-commute').value, 10) || JobScore.DEFAULT_TARGETS.commuteTarget;
+    var commuteTargetInput = parseInt(document.getElementById('target-commute').value, 10);
+    state.targets.commuteTarget = isNaN(commuteTargetInput) ? JobScore.DEFAULT_TARGETS.commuteTarget : commuteTargetInput;
     state.targets.endTimeTarget = document.getElementById('target-endTime').value || JobScore.DEFAULT_TARGETS.endTimeTarget;
     state.targets.startTimeTarget = document.getElementById('target-startTime').value || JobScore.DEFAULT_TARGETS.startTimeTarget;
-    state.targets.daysTarget = parseInt(document.getElementById('target-days').value, 10) || JobScore.DEFAULT_TARGETS.daysTarget;
+    var daysTargetInput = parseInt(document.getElementById('target-days').value, 10);
+    state.targets.daysTarget = isNaN(daysTargetInput) ? JobScore.DEFAULT_TARGETS.daysTarget : daysTargetInput;
 
     persistWeights(); persistLimits(); persistTargets();
     showView('home');
@@ -364,8 +410,8 @@
       try {
         var data = JSON.parse(reader.result);
         if (!Array.isArray(data.jobs)) throw new Error('invalid');
-        state.jobs = data.jobs;
-        state.weights = data.weights || clone(DEFAULT_WEIGHTS);
+        state.jobs = sanitizeJobs(data.jobs);
+        state.weights = clampWeights(data.weights);
         state.limits = data.limits || clone(DEFAULT_LIMITS);
         state.targets = data.targets || clone(JobScore.DEFAULT_TARGETS);
         persistJobs(); persistWeights(); persistLimits(); persistTargets();
@@ -402,10 +448,11 @@
     try {
       var json = decodeURIComponent(escape(atob(decodeURIComponent(m[1]))));
       var data = JSON.parse(json);
-      state.jobs = data.jobs || [];
-      state.weights = data.weights || clone(DEFAULT_WEIGHTS);
+      state.jobs = sanitizeJobs(data.jobs);
+      state.weights = clampWeights(data.weights);
       state.limits = data.limits || clone(DEFAULT_LIMITS);
       state.targets = data.targets || clone(JobScore.DEFAULT_TARGETS);
+      state.viewOnly = true;
       document.getElementById('share-banner').hidden = false;
       return true;
     } catch (e) { return false; }
@@ -439,6 +486,7 @@
       var input = document.querySelector('[data-weight="' + key + '"]');
       if (input) input.addEventListener('input', function () {
         state.weights[key] = parseInt(input.value, 10) || 0;
+        state.activeTemplate = null;
         updateStarLabel(key);
         persistWeights();
         renderCriteriaLiveRank();
@@ -452,6 +500,9 @@
     document.getElementById('share-btn').addEventListener('click', shareResult);
 
     showView('home');
+    window.addEventListener('popstate', function (e) {
+      showView((e.state && e.state.view) || 'home', true);
+    });
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(function () {});
