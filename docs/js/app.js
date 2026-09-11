@@ -505,7 +505,11 @@
     });
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(function () {});
+      // 크롬은 새 서비스워커 확인을 24시간에 한 번으로 제한한다(자동 체크 기준).
+      // register() 직후 update()를 직접 호출하면 이 제한과 무관하게 매번 새 버전을 확인한다.
+      navigator.serviceWorker.register('sw.js').then(function (reg) {
+        reg.update();
+      }).catch(function () {});
     }
   }
 
