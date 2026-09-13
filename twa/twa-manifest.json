@@ -1,0 +1,55 @@
+{
+  "packageId": "io.github.bjgb1004_afk.jobscore",
+  "host": "bjgb1004-afk.github.io",
+  "name": "잡스코어",
+  "launcherName": "잡스코어",
+  "display": "standalone",
+  "themeColor": "#2F6F4F",
+  "themeColorDark": "#000000",
+  "navigationColor": "#000000",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#F7F5F0",
+  "enableNotifications": true,
+  "startUrl": "/jobscale/",
+  "iconUrl": "https://bjgb1004-afk.github.io/jobscale/icon.svg",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "C:\\Users\\pc\\Desktop\\ideabox\\job\\twa\\android.keystore",
+    "alias": "android"
+  },
+  "appVersionName": "3",
+  "appVersionCode": 3,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://bjgb1004-afk.github.io/jobscale/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://bjgb1004-afk.github.io/jobscale/",
+  "minSdkVersion": 21,
+  "shareTarget": {
+    "action": "https://bjgb1004-afk.github.io/jobscale/",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "orientation": "default",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "fileHandlers": [],
+  "launchHandlerClientMode": "",
+  "displayOverride": [],
+  "appVersion": "3"
+}
