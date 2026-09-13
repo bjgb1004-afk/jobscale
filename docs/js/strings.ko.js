@@ -37,6 +37,7 @@ var STRINGS_KO = {
   'home.allRejected': '조건이 너무 엄격합니다. 필수조건을 완화해보세요.',
   'home.noWeights': '중요도를 최소 1개는 선택해주세요.',
   'home.rejectedLabel': '탈락',
+  'home.viewSource': '공고 보러가기',
   'home.rejectedReason': '{reason}',
 
   'template.parenting': '👶 육아 병행형',

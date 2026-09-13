@@ -142,11 +142,15 @@
     var medals = ['🥇', '🥈', '🥉'];
     var html = result.ranked.map(function (r, i) {
       var medal = medals[i] || (i + 1) + '.';
+      var sourceLink = r.job.sourceUrl
+        ? '<a class="job-source-link" href="' + escapeHtml(r.job.sourceUrl) + '" target="_blank" rel="noopener">' + t('home.viewSource') + '</a>'
+        : '';
       return '<li class="job-card" data-id="' + r.job.id + '">' +
         '<span class="medal">' + medal + '</span>' +
         '<span class="job-name">' + escapeHtml(r.job.name) + '</span>' +
         '<span class="job-score">' + t('score.fitLabel') + ' ' + Math.round(r.total) + t('score.suffix') + '</span>' +
         '<span class="job-wage">' + t('wage.realLabel') + ' ' + Math.round(r.raw.realWageWon).toLocaleString() + t('wage.won') + '</span>' +
+        sourceLink +
         '</li>';
     }).join('');
 
@@ -158,7 +162,10 @@
     explainEl.textContent = buildExplainSentence(explain);
 
     listEl.querySelectorAll('.job-card').forEach(function (card) {
-      card.addEventListener('click', function () { openJobForm(card.getAttribute('data-id')); });
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('.job-source-link')) return;
+        openJobForm(card.getAttribute('data-id'));
+      });
     });
   }
 
@@ -282,15 +289,17 @@
   }
 
   // ---------- 공고 등록 폼 (P1) ----------
-  function openJobForm(id) {
+  // prefill: 공유하기로 들어온 공고를 파싱한 값(shareParse 결과). 새 공고(id 없음)일 때만 쓰임.
+  function openJobForm(id, prefill) {
     state.editingJobId = id || null;
     var job = id ? state.jobs.filter(function (j) { return j.id === id; })[0] : null;
-    document.getElementById('jf-name').value = job ? job.name : '';
-    document.getElementById('jf-payAmount').value = job ? job.pay.amount : '';
-    document.getElementById('jf-payType').value = job ? job.pay.unit : 'monthly';
-    document.getElementById('jf-start').value = job ? job.start : '09:00';
-    document.getElementById('jf-end').value = job ? job.end : '18:00';
-    document.getElementById('jf-days').value = job ? job.daysPerWeek : 5;
+    state.draftSourceUrl = job ? job.sourceUrl : (prefill && prefill.sourceUrl) || null;
+    document.getElementById('jf-name').value = job ? job.name : (prefill && prefill.name) || '';
+    document.getElementById('jf-payAmount').value = job ? job.pay.amount : (prefill && prefill.payAmount) || '';
+    document.getElementById('jf-payType').value = job ? job.pay.unit : (prefill && prefill.payType) || 'monthly';
+    document.getElementById('jf-start').value = job ? job.start : (prefill && prefill.start) || '09:00';
+    document.getElementById('jf-end').value = job ? job.end : (prefill && prefill.end) || '18:00';
+    document.getElementById('jf-days').value = job ? job.daysPerWeek : (prefill && prefill.daysPerWeek) || 5;
     document.getElementById('jf-commute').value = job ? job.commuteMin : '';
     document.getElementById('jf-break').value = job ? job.breakMin : 0;
     document.getElementById('jf-intensity').value = job ? job.intensity : 'normal';
@@ -344,7 +353,8 @@
       breakMin: parseInt(document.getElementById('jf-break').value, 10) || 0,
       intensity: document.getElementById('jf-intensity').value,
       employmentType: document.getElementById('jf-employmentType').value,
-      insurance: document.getElementById('jf-insurance').checked
+      insurance: document.getElementById('jf-insurance').checked,
+      sourceUrl: state.draftSourceUrl || null
     };
     if (state.editingJobId) {
       state.jobs = state.jobs.map(function (j) { return j.id === job.id ? job : j; });
@@ -458,6 +468,21 @@
     } catch (e) { return false; }
   }
 
+  // ---------- 공유 받기 (다른 앱의 "공유하기" → 공고 등록 폼 자동 채움) ----------
+  // manifest.json의 share_target(GET)이 index.html?title=&text=&url= 형태로 전달함.
+  // 파싱은 shareParse.js(순수함수, 별도 테스트 있음)에 위임 — 여기선 폼에 꽂는 것만 담당.
+  function handleIncomingShare() {
+    var params = new URLSearchParams(location.search);
+    if (!params.has('title') && !params.has('text') && !params.has('url')) return;
+    var prefill = ShareParse.parse({
+      title: params.get('title') || '',
+      text: params.get('text') || '',
+      url: params.get('url') || ''
+    });
+    history.replaceState(null, '', location.pathname + location.hash);
+    openJobForm(null, prefill);
+  }
+
   // ---------- 초기화 ----------
   function populateSelect(id, values, prefix) {
     var sel = document.getElementById(id);
@@ -500,6 +525,7 @@
     document.getElementById('share-btn').addEventListener('click', shareResult);
 
     showView('home');
+    handleIncomingShare();
     window.addEventListener('popstate', function (e) {
       showView((e.state && e.state.view) || 'home', true);
     });
