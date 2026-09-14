@@ -117,9 +117,16 @@ h3 { font-size: 0.9rem; color: var(--muted); margin: 1.2rem 0 0.4rem; }
 .job-source-link { grid-area: link; margin-top: 0.35rem; font-size: 0.8rem; color: var(--accent); }
 
 .job-cards.rejected { margin-top: 0.75rem; opacity: 0.65; }
-.rejected-card { display: flex; flex-direction: column; gap: 0.15rem; cursor: default; }
+.rejected-card { position: relative; display: flex; flex-direction: column; gap: 0.15rem; cursor: default; padding-right: 2.2rem; }
 .reject-label { color: var(--danger); font-weight: 700; font-size: 0.8rem; }
 .reject-reason { color: var(--muted); font-size: 0.8rem; }
+.reject-delete-btn {
+  position: absolute; top: 0.4rem; right: 0.5rem;
+  width: 1.6rem; height: 1.6rem; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--bg);
+  color: var(--muted); font-size: 0.85rem; line-height: 1; cursor: pointer;
+}
+.reject-delete-btn:hover { color: var(--danger); border-color: var(--danger); }
 
 .empty, .notice, .hint { color: var(--muted); font-size: 0.9rem; padding: 0.5rem 0; }
 .notice { color: var(--danger); }

@@ -132,6 +132,7 @@
     }
     if (result.error === 'ALL_REJECTED') {
       listEl.innerHTML = '<p class="notice">' + t('home.allRejected') + '</p>' + renderRejectedList(result.rejected);
+      bindRejectDeleteButtons(listEl);
       return;
     }
     if (result.error === 'NO_WEIGHTS') {
@@ -163,8 +164,18 @@
 
     listEl.querySelectorAll('.job-card').forEach(function (card) {
       card.addEventListener('click', function (e) {
-        if (e.target.closest('.job-source-link')) return;
+        if (e.target.closest('.job-source-link') || e.target.closest('.reject-delete-btn')) return;
         openJobForm(card.getAttribute('data-id'));
+      });
+    });
+    bindRejectDeleteButtons(listEl);
+  }
+
+  function bindRejectDeleteButtons(listEl) {
+    listEl.querySelectorAll('.reject-delete-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (deleteJobById(btn.getAttribute('data-id'))) renderHome();
       });
     });
   }
@@ -179,6 +190,7 @@
         '<span class="job-name">' + escapeHtml(r.job.name) + '</span>' +
         '<span class="reject-label">' + t('home.rejectedLabel') + '</span>' +
         '<span class="reject-reason">' + escapeHtml(reasonText) + '</span>' +
+        '<button type="button" class="reject-delete-btn" data-id="' + r.job.id + '" aria-label="' + t('job.delete') + '">✕</button>' +
         '</li>';
     }).join('') + '</ul>';
   }
@@ -309,7 +321,7 @@
     document.getElementById('jf-end').value = job ? job.end : (prefill && prefill.end) || '18:00';
     document.getElementById('jf-days').value = job ? job.daysPerWeek : (prefill && prefill.daysPerWeek) || 5;
     document.getElementById('jf-commute').value = job ? job.commuteMin : '';
-    document.getElementById('jf-break').value = job ? job.breakMin : 0;
+    document.getElementById('jf-break').value = job ? job.breakMin : '';
     document.getElementById('jf-intensity').value = job ? job.intensity : 'normal';
     document.getElementById('jf-employmentType').value = job ? job.employmentType : 'regular';
     document.getElementById('jf-insurance').checked = job ? !!job.insurance : false;
@@ -374,12 +386,18 @@
     showView('home');
   }
 
+  // 등록폼의 삭제 버튼(state.editingJobId)과 탈락 카드의 바로삭제(id 직접 전달)가 공용으로 쓴다.
+  function deleteJobById(id) {
+    var job = state.jobs.filter(function (j) { return j.id === id; })[0];
+    if (job && !confirm(t('job.deleteConfirm', { name: job.name }))) return false;
+    state.jobs = state.jobs.filter(function (j) { return j.id !== id; });
+    persistJobs();
+    return true;
+  }
+
   function deleteJob() {
     if (!state.editingJobId) return;
-    var job = state.jobs.filter(function (j) { return j.id === state.editingJobId; })[0];
-    if (job && !confirm(t('job.deleteConfirm', { name: job.name }))) return;
-    state.jobs = state.jobs.filter(function (j) { return j.id !== state.editingJobId; });
-    persistJobs();
+    if (!deleteJobById(state.editingJobId)) return;
     state.editingJobId = null;
     showView('home');
   }
