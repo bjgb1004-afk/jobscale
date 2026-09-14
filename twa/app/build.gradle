@@ -24,8 +24,8 @@ def twaManifest = [
     applicationId: 'io.github.bjgb1004_afk.jobscore',
     hostName: 'bjgb1004-afk.github.io', // The domain being opened in the TWA.
     launchUrl: '/jobscale/', // The start path for the TWA. Must be relative to the domain.
-    name: '잡스코어', // The application name.
-    launcherName: '잡스코어', // The name shown on the Android Launcher.
+    name: '직장비교', // The application name.
+    launcherName: '직비', // The name shown on the Android Launcher.
     themeColor: '#2F6F4F', // The color used for the status bar.
     themeColorDark: '#000000', // The color used for the dark status bar.
     navigationColor: '#000000', // The color used for the navigation bar.
@@ -57,8 +57,8 @@ android {
         applicationId "io.github.bjgb1004_afk.jobscore"
         minSdkVersion 21
         targetSdkVersion 36
-        versionCode 3
-        versionName "3"
+        versionCode 5
+        versionName "4"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
