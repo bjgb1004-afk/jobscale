@@ -1,8 +1,8 @@
 {
   "packageId": "io.github.bjgb1004_afk.jobscore",
   "host": "bjgb1004-afk.github.io",
-  "name": "잡스코어",
-  "launcherName": "잡스코어",
+  "name": "직장비교",
+  "launcherName": "직비",
   "display": "standalone",
   "themeColor": "#2F6F4F",
   "themeColorDark": "#000000",

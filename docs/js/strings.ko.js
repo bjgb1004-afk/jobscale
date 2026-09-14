@@ -20,7 +20,7 @@ var KO_JOSA = {
 };
 
 var STRINGS_KO = {
-  'app.title': '잡스코어',
+  'app.title': '직비',
   'app.footer.disclaimer': '이 점수는 회사 평가가 아니라 내 기준 적합도입니다.',
 
   'nav.home': '홈',
@@ -39,9 +39,9 @@ var STRINGS_KO = {
   'home.rejectedLabel': '탈락',
   'home.viewSource': '공고 보러가기',
   'home.shareHelp.summary': '💡 다른 앱에서 공유로 바로 등록하기',
-  'home.shareHelp.intro': '알바몬, 사람인 같은 채용 앱에서 공고 보다가 공유 버튼을 누르면 잡스코어로 바로 넘길 수 있어요.',
+  'home.shareHelp.intro': '알바몬, 사람인 같은 채용 앱에서 공고 보다가 공유 버튼을 누르면 직비로 바로 넘길 수 있어요.',
   'home.shareHelp.step1': '채용 공고 화면에서 공유(공유하기) 버튼을 누르세요.',
-  'home.shareHelp.step2': "공유 목록에서 '잡스코어'를 선택하세요.",
+  'home.shareHelp.step2': "공유 목록에서 '직비'를 선택하세요.",
   'home.shareHelp.step3': '공고 등록 화면이 뜨면서 회사명·급여·근무시간 등이 자동으로 채워져요. 통근시간처럼 자동으로 못 채우는 항목만 직접 입력하면 됩니다.',
   'home.shareHelp.note': '앱마다 공유 텍스트 형식이 달라서 일부 항목은 못 채워질 수 있어요 — 그럴 땐 확인하고 직접 채워주세요.',
   'home.rejectedReason': '{reason}',
