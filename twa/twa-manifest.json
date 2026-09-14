@@ -19,8 +19,8 @@
     "path": "C:\\Users\\pc\\Desktop\\ideabox\\job\\twa\\android.keystore",
     "alias": "android"
   },
-  "appVersionName": "4",
-  "appVersionCode": 5,
+  "appVersionName": "5",
+  "appVersionCode": 6,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://bjgb1004-afk.github.io/jobscale/manifest.json",
@@ -51,5 +51,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "4"
+  "appVersion": "5"
 }
