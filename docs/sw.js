@@ -2,7 +2,7 @@
  * 최소 서비스워커 — 앱 셸 캐싱, 오프라인 동작용.
  * ponytail: 캐시 무효화는 CACHE_NAME 버전 문자열만 올리면 됨(수동). 빌드 도구 없음.
  */
-var CACHE_NAME = 'jobscale-v6';
+var CACHE_NAME = 'jobscale-v7';
 var APP_SHELL = [
   './',
   './index.html',

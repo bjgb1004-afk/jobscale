@@ -289,6 +289,13 @@
   }
 
   // ---------- 공고 등록 폼 (P1) ----------
+  // score.js가 월급=만원 단위, 시급=원 단위로 계산하므로(monthlyPayWon 참고) 입력창
+  // 옆에 단위를 보여줘야 사람이 헷갈려서 10000배 틀린 값을 넣는 걸 막을 수 있다.
+  function updatePayUnitLabel() {
+    var isHourly = document.getElementById('jf-payType').value === 'hourly';
+    document.getElementById('jf-payUnit').textContent = t(isHourly ? 'unit.won' : 'unit.manwon');
+  }
+
   // prefill: 공유하기로 들어온 공고를 파싱한 값(shareParse 결과). 새 공고(id 없음)일 때만 쓰임.
   function openJobForm(id, prefill) {
     state.editingJobId = id || null;
@@ -297,6 +304,7 @@
     document.getElementById('jf-name').value = job ? job.name : (prefill && prefill.name) || '';
     document.getElementById('jf-payAmount').value = job ? job.pay.amount : (prefill && prefill.payAmount) || '';
     document.getElementById('jf-payType').value = job ? job.pay.unit : (prefill && prefill.payType) || 'monthly';
+    updatePayUnitLabel();
     document.getElementById('jf-start').value = job ? job.start : (prefill && prefill.start) || '09:00';
     document.getElementById('jf-end').value = job ? job.end : (prefill && prefill.end) || '18:00';
     document.getElementById('jf-days').value = job ? job.daysPerWeek : (prefill && prefill.daysPerWeek) || 5;
@@ -506,6 +514,7 @@
     document.getElementById('jobform-save-btn').addEventListener('click', saveJobForm);
     document.getElementById('jobform-cancel-btn').addEventListener('click', function () { showView('home'); });
     document.getElementById('jf-delete').addEventListener('click', deleteJob);
+    document.getElementById('jf-payType').addEventListener('change', updatePayUnitLabel);
 
     JobScore.SCORE_KEYS.forEach(function (key) {
       var input = document.querySelector('[data-weight="' + key + '"]');

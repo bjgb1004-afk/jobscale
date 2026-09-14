@@ -19,10 +19,22 @@ t('시급 + 시간 + 주N일 패턴 파싱', function () {
   assert.strictEqual(r.daysPerWeek, 5);
 });
 
-t('월급 + 만원 단위 환산', function () {
+t('월급 250만원 → 만원 단위 그대로(250) 저장 — score.js가 월급을 만원 단위로 계산함', function () {
   var r = ShareParse.parse({ title: '', text: '월급 250만원 지급', url: '' });
-  assert.strictEqual(r.payAmount, 2500000);
+  assert.strictEqual(r.payAmount, 250);
   assert.strictEqual(r.payType, 'monthly');
+});
+
+t('월급이 원 단위로 적혀있으면(2,500,000원) 만원 단위로 환산', function () {
+  var r = ShareParse.parse({ title: '', text: '월급 2,500,000원', url: '' });
+  assert.strictEqual(r.payAmount, 250);
+  assert.strictEqual(r.payType, 'monthly');
+});
+
+t('시급이 만원 단위로 적혀있으면(드묾) 원 단위로 환산', function () {
+  var r = ShareParse.parse({ title: '', text: '시급 1만원', url: '' });
+  assert.strictEqual(r.payAmount, 10000);
+  assert.strictEqual(r.payType, 'hourly');
 });
 
 t('"평일" → 주5일', function () {

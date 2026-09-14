@@ -40,6 +40,17 @@
     <p id="explain-text" class="explain"></p>
     <div id="job-list"></div>
 
+    <details class="copy-help">
+      <summary data-i18n="home.shareHelp.summary"></summary>
+      <p data-i18n="home.shareHelp.intro"></p>
+      <ol>
+        <li data-i18n="home.shareHelp.step1"></li>
+        <li data-i18n="home.shareHelp.step2"></li>
+        <li data-i18n="home.shareHelp.step3"></li>
+      </ol>
+      <p data-i18n="home.shareHelp.note"></p>
+    </details>
+
     <div class="action-row">
       <button type="button" id="add-job-btn" class="primary" data-i18n="home.addJob"></button>
       <button type="button" data-nav="compare" data-i18n="home.compareBtn"></button>
@@ -183,6 +194,7 @@
     <div class="field-row">
       <label for="jf-payAmount" data-i18n="job.pay"></label>
       <input type="number" id="jf-payAmount" min="0" inputmode="numeric">
+      <span id="jf-payUnit"></span>
       <select id="jf-payType">
         <option value="monthly" data-i18n="job.payType.monthly"></option>
         <option value="hourly" data-i18n="job.payType.hourly"></option>
