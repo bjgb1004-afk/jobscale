@@ -123,3 +123,11 @@ app/ (rm -rf 실패 시 OneDrive/탐색기가 잡고 있을 수 있음 — 재�
 - [x] sw.js CACHE_NAME v6 → v7 (캐시 갱신)
   검증: shareParse.test.js 11개 + score.test.js 10개 전부 통과, agent-browser로
   share_target GET 프리필 실제 확인(월급 250/만원/주5일/09:00~18:00, 콘솔 에러 0건)
+
+## 앱 리브랜드 "잡스코어"→"직장비교"(직비) + 실기기 검증 (2026-09-14)
+- [x] 웹(manifest.json/index.html/strings.ko.js/icon.svg) + twa-manifest.json 이름/아이콘 교체
+- [x] bubblewrap update → gradlew assembleRelease+bundleRelease → zipalign+apksigner(APK)/
+      jarsigner(AAB) 재서명. SHA-256 지문 기존과 동일(재서명 불필요 확인, assetlinks.json 안 건드려도 됨)
+- [x] 실기기(adb install -r) 설치·실행 검증: 인앱 h1 "직비" 표시, 런처 라벨 aapt로 "직비"/
+      설정용 라벨 "직장비교" 확인, 기존 공고 데이터(6개) 업데이트 후에도 보존
+  appVersionCode 3→5. 산출물 twa/app/build/outputs/**/*-signed.{apk,aab} (git 미추적)
