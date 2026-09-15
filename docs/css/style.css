@@ -89,6 +89,7 @@ main { max-width: 640px; margin: 0 auto; padding: 1rem; }
 h2 { font-size: 1rem; color: var(--muted); margin: 1.2rem 0 0.5rem; }
 h3 { font-size: 0.9rem; color: var(--muted); margin: 1.2rem 0 0.4rem; }
 
+.explain:empty { display: none; } /* 공고가 없을 땐 빈 초록 박스만 남아서 숨긴다 */
 .explain {
   background: var(--accent-weak);
   color: var(--text);
