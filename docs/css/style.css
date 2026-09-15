@@ -188,6 +188,39 @@ details[open] summary { margin-bottom: 0.6rem; }
 .copy-help-method { font-weight: 600; color: var(--text) !important; margin: 0.7rem 0 0.2rem; }
 .copy-help ol { padding-left: 1.2rem; margin: 0.2rem 0; }
 
+.paste-box {
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.8rem;
+  margin-top: 0.8rem;
+  background: var(--accent-weak);
+}
+.paste-box label { display: block; font-size: 0.88rem; font-weight: 600; color: var(--accent); margin-bottom: 0.4rem; }
+.paste-box textarea {
+  width: 100%;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+}
+.paste-box button {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.paste-result:empty { display: none; }
+.paste-result { margin: 0.5rem 0 0; font-size: 0.82rem; color: var(--text); }
+
 .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .compare-table { border-collapse: collapse; width: 100%; min-width: 480px; font-size: 0.85rem; }
 .compare-table th, .compare-table td { border-bottom: 1px solid var(--border); padding: 0.5rem 0.6rem; text-align: center; white-space: nowrap; }

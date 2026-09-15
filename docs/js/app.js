@@ -332,8 +332,41 @@
     document.getElementById('jf-insurance').checked = job ? !!job.insurance : false;
     document.getElementById('jf-weekendWork').checked = job ? !!job.weekendWork : false;
     document.getElementById('jf-delete').hidden = !job;
+    document.getElementById('jf-paste').value = '';
+    document.getElementById('jf-paste-result').textContent = '';
     clearFormErrors();
     showView('jobform');
+  }
+
+  // 공유 인텐트로는 급여·근무시간이 안 넘어오는 경우가 대부분이다(구인앱이 링크만 보내거나,
+  // 사람인처럼 자체 공유창을 써서 아예 목록에 안 뜬다). 그래서 공고 화면에서 복사한 텍스트를
+  // 직접 붙여넣어 같은 파서로 채우는 경로를 둔다 — 정보가 실제로 있는 유일한 출처가 화면 텍스트다.
+  function applyPastedText() {
+    var resultEl = document.getElementById('jf-paste-result');
+    var text = document.getElementById('jf-paste').value.trim();
+    if (!text) { resultEl.textContent = ''; return; }
+
+    var parsed = ShareParse.parse({ title: '', text: text, url: '' });
+    var filled = [];
+    function fill(id, value, labelKey) {
+      if (value == null || value === '') return;
+      document.getElementById(id).value = value;
+      filled.push(t(labelKey));
+    }
+    fill('jf-name', parsed.name, 'job.name');
+    if (parsed.payAmount != null) {
+      document.getElementById('jf-payType').value = parsed.payType;
+      fill('jf-payAmount', parsed.payAmount, 'job.pay');
+      updatePayUnitLabel();
+    }
+    fill('jf-start', parsed.start, 'job.start');
+    fill('jf-end', parsed.end, 'job.end');
+    fill('jf-days', parsed.daysPerWeek, 'job.days');
+    if (parsed.sourceUrl) state.draftSourceUrl = parsed.sourceUrl;
+
+    resultEl.textContent = filled.length
+      ? t('job.paste.filled', { fields: filled.join(', ') })
+      : t('job.paste.nothing');
   }
 
   function clearFormErrors() {
@@ -545,6 +578,7 @@
     document.getElementById('jobform-cancel-btn').addEventListener('click', function () { showView('home'); });
     document.getElementById('jf-delete').addEventListener('click', deleteJob);
     document.getElementById('jf-payType').addEventListener('change', updatePayUnitLabel);
+    document.getElementById('jf-paste-apply').addEventListener('click', applyPastedText);
 
     JobScore.SCORE_KEYS.forEach(function (key) {
       var input = document.querySelector('[data-weight="' + key + '"]');
