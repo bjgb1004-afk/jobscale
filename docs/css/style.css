@@ -105,8 +105,8 @@ h3 { font-size: 0.9rem; color: var(--muted); margin: 1.2rem 0 0.4rem; }
   border-radius: var(--radius);
   padding: 0.75rem 0.9rem;
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  grid-template-areas: "medal name score" "medal name wage" "medal link link";
+  grid-template-columns: auto 1fr auto auto;
+  grid-template-areas: "medal name score del" "medal name wage del" "medal link link del";
   column-gap: 0.6rem;
   cursor: pointer;
 }
@@ -115,18 +115,20 @@ h3 { font-size: 0.9rem; color: var(--muted); margin: 1.2rem 0 0.4rem; }
 .job-score { grid-area: score; color: var(--accent); font-weight: 700; }
 .job-wage { grid-area: wage; color: var(--muted); font-size: 0.8rem; }
 .job-source-link { grid-area: link; margin-top: 0.35rem; font-size: 0.8rem; color: var(--accent); }
+.job-card .job-delete-btn { grid-area: del; align-self: center; }
 
 .job-cards.rejected { margin-top: 0.75rem; opacity: 0.65; }
 .rejected-card { position: relative; display: flex; flex-direction: column; gap: 0.15rem; cursor: default; padding-right: 2.2rem; }
 .reject-label { color: var(--danger); font-weight: 700; font-size: 0.8rem; }
 .reject-reason { color: var(--muted); font-size: 0.8rem; }
-.reject-delete-btn {
-  position: absolute; top: 0.4rem; right: 0.5rem;
+.reject-delete-btn, .job-delete-btn {
   width: 1.6rem; height: 1.6rem; border-radius: 50%;
   border: 1px solid var(--border); background: var(--bg);
   color: var(--muted); font-size: 0.85rem; line-height: 1; cursor: pointer;
+  flex-shrink: 0;
 }
-.reject-delete-btn:hover { color: var(--danger); border-color: var(--danger); }
+.reject-delete-btn { position: absolute; top: 0.4rem; right: 0.5rem; }
+.reject-delete-btn:hover, .job-delete-btn:hover { color: var(--danger); border-color: var(--danger); }
 
 .empty, .notice, .hint { color: var(--muted); font-size: 0.9rem; padding: 0.5rem 0; }
 .notice { color: var(--danger); }
@@ -152,7 +154,8 @@ h3 { font-size: 0.9rem; color: var(--muted); margin: 1.2rem 0 0.4rem; }
 }
 
 .live-rank { background: var(--accent-weak); border-radius: var(--radius); padding: 0.6rem 0.8rem; margin-bottom: 0.75rem; }
-.live-rank-row { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.15rem 0; }
+.live-rank-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.85rem; padding: 0.15rem 0; }
+.live-rank-row > span:first-child { flex: 1 1 auto; }
 
 .weight-list, .limit-list { display: flex; flex-direction: column; gap: 0.6rem; }
 .weight-row { display: grid; grid-template-columns: 5.5rem 1fr 4rem; align-items: center; gap: 0.5rem; }

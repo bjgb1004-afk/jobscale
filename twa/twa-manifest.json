@@ -2,7 +2,7 @@
   "packageId": "io.github.bjgb1004_afk.jobscore",
   "host": "bjgb1004-afk.github.io",
   "name": "직장비교",
-  "launcherName": "직비",
+  "launcherName": "직장비교",
   "display": "standalone",
   "themeColor": "#2F6F4F",
   "themeColorDark": "#000000",
@@ -19,8 +19,8 @@
     "path": "C:\\Users\\pc\\Desktop\\ideabox\\job\\twa\\android.keystore",
     "alias": "android"
   },
-  "appVersionName": "5",
-  "appVersionCode": 6,
+  "appVersionName": "7",
+  "appVersionCode": 7,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://bjgb1004-afk.github.io/jobscale/manifest.json",
@@ -51,5 +51,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "5"
+  "appVersion": "7"
 }

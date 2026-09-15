@@ -26,12 +26,10 @@ var STRINGS_KO = {
   'nav.home': '홈',
   'nav.criteria': '내 기준',
   'nav.compare': '나란히 비교',
+  'nav.addJob': '공고 추가',
 
   'home.question': '어떤 게 제일 중요하세요?',
   'home.myJobs': '내 공고 ({count}개)',
-  'home.addJob': '+ 공고 추가',
-  'home.compareBtn': '나란히 비교',
-  'home.editCriteria': '기준 바꾸기',
   'home.empty': '등록한 공고가 없습니다. 공고를 추가해보세요.',
   'home.oneJobHint': '비교하려면 공고를 1개 더 등록하세요.',
   'home.allRejected': '조건이 너무 엄격합니다. 필수조건을 완화해보세요.',
@@ -117,6 +115,7 @@ var STRINGS_KO = {
   'job.intensity': '업무강도',
   'job.employmentType': '고용형태',
   'job.insurance': '4대보험',
+  'job.weekendWork': '주말 근무',
   'job.save': '저장',
   'job.delete': '삭제',
   'job.edit': '수정',
@@ -143,7 +142,11 @@ var STRINGS_KO = {
   'compare.commute': '통근',
   'compare.days': '근무일',
   'compare.intensity': '업무강도',
+  'compare.weekendWork': '주말 근무',
   'compare.total': '내 기준 적합도',
+
+  'unit.yes': '예',
+  'unit.no': '아니오',
   'compare.back': '돌아가기',
   'compare.empty': '비교할 공고가 없습니다.',
 

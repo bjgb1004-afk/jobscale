@@ -152,6 +152,7 @@
         '<span class="job-score">' + t('score.fitLabel') + ' ' + Math.round(r.total) + t('score.suffix') + '</span>' +
         '<span class="job-wage">' + t('wage.realLabel') + ' ' + Math.round(r.raw.realWageWon).toLocaleString() + t('wage.won') + '</span>' +
         sourceLink +
+        '<button type="button" class="job-delete-btn" data-id="' + r.job.id + '" aria-label="' + t('job.delete') + '">✕</button>' +
         '</li>';
     }).join('');
 
@@ -164,18 +165,19 @@
 
     listEl.querySelectorAll('.job-card').forEach(function (card) {
       card.addEventListener('click', function (e) {
-        if (e.target.closest('.job-source-link') || e.target.closest('.reject-delete-btn')) return;
+        if (e.target.closest('.job-source-link') || e.target.closest('.job-delete-btn')) return;
         openJobForm(card.getAttribute('data-id'));
       });
     });
-    bindRejectDeleteButtons(listEl);
+    bindDeleteButtons(listEl, renderHome);
   }
 
-  function bindRejectDeleteButtons(listEl) {
-    listEl.querySelectorAll('.reject-delete-btn').forEach(function (btn) {
+  // 순위 목록(job-delete-btn)과 탈락 카드(reject-delete-btn) 둘 다 같은 공용 삭제 버튼 패턴.
+  function bindDeleteButtons(container, onDeleted) {
+    container.querySelectorAll('.job-delete-btn, .reject-delete-btn').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (deleteJobById(btn.getAttribute('data-id'))) renderHome();
+        if (deleteJobById(btn.getAttribute('data-id'))) onDeleted();
       });
     });
   }
@@ -274,8 +276,11 @@
     var medals = ['🥇', '🥈', '🥉'];
     el.innerHTML = result.ranked.map(function (r, i) {
       return '<div class="live-rank-row"><span>' + (medals[i] || (i + 1) + '.') + ' ' + escapeHtml(r.job.name) +
-        '</span><span>' + Math.round(r.total) + t('score.suffix') + '</span></div>';
+        '</span><span>' + Math.round(r.total) + t('score.suffix') + '</span>' +
+        '<button type="button" class="job-delete-btn" data-id="' + r.job.id + '" aria-label="' + t('job.delete') + '">✕</button>' +
+        '</div>';
     }).join('');
+    bindDeleteButtons(el, renderCriteriaLiveRank);
   }
 
   function saveCriteria() {
@@ -325,6 +330,7 @@
     document.getElementById('jf-intensity').value = job ? job.intensity : 'normal';
     document.getElementById('jf-employmentType').value = job ? job.employmentType : 'regular';
     document.getElementById('jf-insurance').checked = job ? !!job.insurance : false;
+    document.getElementById('jf-weekendWork').checked = job ? !!job.weekendWork : false;
     document.getElementById('jf-delete').hidden = !job;
     clearFormErrors();
     showView('jobform');
@@ -374,6 +380,7 @@
       intensity: document.getElementById('jf-intensity').value,
       employmentType: document.getElementById('jf-employmentType').value,
       insurance: document.getElementById('jf-insurance').checked,
+      weekendWork: document.getElementById('jf-weekendWork').checked,
       sourceUrl: state.draftSourceUrl || null
     };
     if (state.editingJobId) {
@@ -416,7 +423,8 @@
       { label: t('compare.workTime'), get: function (r) { return r.job.start + '~' + r.job.end; } },
       { label: t('compare.commute'), get: function (r) { return r.job.commuteMin + t('unit.min'); } },
       { label: t('compare.days'), get: function (r) { return r.job.daysPerWeek + t('unit.day'); } },
-      { label: t('compare.intensity'), get: function (r) { return t('intensity.' + r.job.intensity); } }
+      { label: t('compare.intensity'), get: function (r) { return t('intensity.' + r.job.intensity); } },
+      { label: t('compare.weekendWork'), get: function (r) { return t(r.job.weekendWork ? 'unit.yes' : 'unit.no'); } }
     ];
     var head = '<tr><th></th>' + result.ranked.map(function (r) { return '<th>' + escapeHtml(r.job.name) + '</th>'; }).join('') + '</tr>';
     var body = rows.map(function (row) {
@@ -425,7 +433,11 @@
     var scoreRow = '<tr class="total-row"><th>' + t('compare.total') + '</th>' + result.ranked.map(function (r) {
       return '<td><div class="bar"><div class="bar-fill" style="width:' + Math.round(r.total) + '%"></div></div>' + Math.round(r.total) + t('score.suffix') + '</td>';
     }).join('') + '</tr>';
-    el.innerHTML = '<table class="compare-table"><thead>' + head + '</thead><tbody>' + body + scoreRow + '</tbody></table>';
+    var deleteRow = '<tr><th></th>' + result.ranked.map(function (r) {
+      return '<td><button type="button" class="job-delete-btn" data-id="' + r.job.id + '" aria-label="' + t('job.delete') + '">✕</button></td>';
+    }).join('') + '</tr>';
+    el.innerHTML = '<table class="compare-table"><thead>' + head + '</thead><tbody>' + body + scoreRow + deleteRow + '</tbody></table>';
+    bindDeleteButtons(el, renderCompare);
   }
 
   // ---------- 백업/복원 (P7) ----------
