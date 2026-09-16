@@ -1,8 +1,8 @@
 /**
  * 최소 서비스워커 — 앱 셸 캐싱, 오프라인 동작용.
- * ponytail: 캐시 무효화는 CACHE_NAME 버전 문자열만 올리면 됨(수동). 빌드 도구 없음.
+ * 네트워크 우선 + 캐시 폴백. 온라인이면 항상 최신, 오프라인이면 마지막 캐시본.
  */
-var CACHE_NAME = 'jobscale-v15';
+var CACHE_NAME = 'jobscale-v16';
 var APP_SHELL = [
   './',
   './index.html',
@@ -34,13 +34,21 @@ self.addEventListener('activate', function (event) {
 
 self.addEventListener('fetch', function (event) {
   if (event.request.method !== 'GET') return;
+  var url = new URL(event.request.url);
+  // 네트워크 우선 — 캐시 우선이면 배포해도 다음 실행까지 옛 화면이 떠서, 버전만 올리는
+  // 방식으로는 이 지연이 안 없어진다. 캐시는 오프라인 대비용으로만 쓴다.
   event.respondWith(
-    caches.match(event.request).then(function (cached) {
-      return cached || fetch(event.request).then(function (res) {
+    fetch(event.request).then(function (res) {
+      if (res.ok && url.origin === self.location.origin && !url.search) {
         var copy = res.clone();
         caches.open(CACHE_NAME).then(function (cache) { cache.put(event.request, copy); });
-        return res;
-      }).catch(function () { return cached; });
+      }
+      return res;
+    }).catch(function () {
+      return caches.match(event.request).then(function (cached) {
+        // 공유로 들어온 주소(?title=...)는 캐시에 없으니 앱 셸로 떨어뜨린다.
+        return cached || caches.match('./index.html');
+      });
     })
   );
 });
