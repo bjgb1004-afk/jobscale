@@ -169,3 +169,24 @@ app/ (rm -rf 실패 시 OneDrive/탐색기가 잡고 있을 수 있음 — 재�
   **디버깅 함정**: `am force-stop <우리앱>`으로는 TWA 화면이 안 죽음 — TWA 웹뷰는
   com.android.chrome의 CustomTabActivity라 Chrome도 같이 죽여야 진짜 초기 상태.
   이걸 모르고 테스트하면 실제 유저 상황이 아닌 인위적 상태를 "재현됐다"고 오판하게 됨.
+
+## UI B안(네이비) 적용 + 아이콘 통일 + TWA v10 (2026-09-16)
+- [x] B안(금융앱 카드/네이비) 웹 적용 커밋 — 1위 hero 카드 + "1위 · 가장 잘 맞음",
+      점수를 카드에서 제일 큰 글자로(정보 위계 교정), 메달/장식 이모지 제거,
+      템플릿 버튼을 칩으로 낮춤, 반경 --radius/--radius-sm 2종 통일, 색 전부 토큰화,
+      상단 nav 현재 화면 active 표시(공고 추가 포함)
+- [x] 아이콘 에메랄드 → 네이비(#3B82F6→#1B3A9E) + theme_color/background_color +
+      twa-manifest themeColor/backgroundColor 동기화 → 남아있던 색 불일치 해소
+- [x] TWA v10 재빌드 — `bubblewrap update --skipVersionUpgrade`(버전 고정 가능, stdin 우회 불필요),
+      gradlew assembleRelease+bundleRelease, zipalign+apksigner(APK)/jarsigner(AAB) 재서명.
+      SHA-256 지문 기존과 동일 → assetlinks.json 안 건드려도 됨
+- [x] 실기기(adb install -r) 설치·검증: versionCode 10, 런처 아이콘 네이비 "직장비교",
+      인앱 네이비 UI, 기존 공고 5개 보존
+
+### 서비스워커를 네트워크 우선으로 전환 (구조적 해결)
+v10 설치 직후에도 앱이 **옛 초록 UI**를 그대로 띄웠음. 원인은 sw.js가 cache-first라
+배포해도 그 실행에서는 항상 캐시본이 쓰였던 것 — CACHE_NAME 올리기/강제종료 재실행은
+그 지연을 매번 손으로 메우는 완화책이었을 뿐 원인이 아니었다.
+→ fetch 핸들러를 **네트워크 우선 + 실패 시에만 캐시 폴백**으로 교체(CACHE_NAME v16).
+   오프라인 동작 유지, 쿼리(`?title=...`) 붙은 주소는 index.html로 폴백하고 캐시에는 안 넣음.
+   교체 후 실기기 재실행에서 네이비 UI 정상 표시 확인.
