@@ -1,24 +1,35 @@
 :root {
-  --bg: #f7f5f0;
+  --bg: #f4f6fa;
   --surface: #ffffff;
-  --text: #1f2320;
-  --muted: #6b7268;
-  --accent: #2f6f4f;
-  --accent-weak: #e4f0e8;
-  --border: #e0ddd5;
-  --danger: #b3432b;
-  --radius: 14px;
+  --text: #101828;
+  --muted: #667085;
+  --accent: #1d4ed8;
+  --accent-weak: #eaf0fe;
+  --border: #e4e8f0;
+  --danger: #d92d20;
+  --hero-from: #1d4ed8;
+  --hero-to: #1b3a9e;
+  --hero-ink: #ffffff;
+  --hero-ink-weak: rgba(255, 255, 255, 0.82);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 8px 18px -9px rgba(16, 24, 40, 0.16);
+  --shadow-hero: 0 12px 26px -11px rgba(29, 78, 216, 0.6);
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #14171a;
-    --surface: #1e2225;
-    --text: #eef0ec;
-    --muted: #9aa39c;
-    --accent: #59b585;
-    --accent-weak: #1f3327;
-    --border: #2c3134;
-    --danger: #e07a5f;
+    --bg: #0e1116;
+    --surface: #181d25;
+    --text: #e8ecf2;
+    --muted: #94a1b5;
+    --accent: #7ca0ff;
+    --accent-weak: #18243d;
+    --border: #262e3a;
+    --danger: #f07267;
+    --hero-from: #2c5ce0;
+    --hero-to: #1a2f6b;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 18px -9px rgba(0, 0, 0, 0.8);
+    --shadow-hero: 0 12px 26px -11px rgba(0, 0, 0, 0.7);
   }
 }
 
@@ -33,24 +44,34 @@ body {
 }
 
 .topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 1rem 1rem 0.5rem;
+  background: var(--bg);
+  padding: 1.1rem 1rem 0.7rem;
   position: sticky;
   top: 0;
   z-index: 10;
 }
-.topbar h1 { font-size: 1.15rem; margin: 0 0 0.6rem; }
-.topnav { display: flex; gap: 0.4rem; }
+.topbar h1 { font-size: 1.3rem; font-weight: 900; letter-spacing: -0.04em; margin: 0 0 0.7rem; }
+/* 세그먼트 pill 하나 안에 4개 — 버튼 4개가 각자 테두리를 갖는 것보다 조용하다. */
+.topnav {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 0.25rem;
+  box-shadow: var(--shadow);
+}
 .topnav button {
   flex: 1;
-  padding: 0.55rem 0.4rem;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  border-radius: 10px;
+  padding: 0.5rem 0.3rem;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
   font-size: 0.85rem;
-  color: var(--text);
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
 }
+.topnav button.active { background: var(--accent); color: #fff; }
 
 .banner {
   background: var(--accent-weak);
@@ -62,101 +83,149 @@ body {
 
 main { max-width: 640px; margin: 0 auto; padding: 1rem; }
 
-.question { font-size: 1.05rem; font-weight: 600; margin: 0.5rem 0 0.75rem; }
+/* 기준 템플릿은 한 번 고르고 마는 것 — 점수·순위보다 커 보이면 안 된다. 칩으로 낮춘다. */
+.question { font-size: 0.8rem; font-weight: 600; color: var(--muted); margin: 0 0 0.5rem; }
 
-.template-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+.template-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.6rem; }
 .template-btn {
-  flex: 1 1 45%;
-  padding: 0.75rem 0.5rem;
-  border: none;
-  border-radius: var(--radius);
-  background: var(--accent);
-  color: #fff;
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-.template-btn.ghost {
-  flex-basis: 100%;
-  background: transparent;
-  color: var(--accent);
-  border: 1px dashed var(--accent);
-}
-.template-btn.active {
-  box-shadow: inset 0 0 0 3px var(--text);
-}
-.template-btn.active::after { content: ' ✓'; }
-
-h2 { font-size: 1rem; color: var(--muted); margin: 1.2rem 0 0.5rem; }
-h3 { font-size: 0.9rem; color: var(--muted); margin: 1.2rem 0 0.4rem; }
-
-.explain:empty { display: none; } /* 공고가 없을 땐 빈 초록 박스만 남아서 숨긴다 */
-.explain {
-  background: var(--accent-weak);
-  color: var(--text);
-  padding: 0.7rem 0.9rem;
-  border-radius: var(--radius);
-  font-size: 0.9rem;
-  margin: 0 0 0.75rem;
-}
-
-.job-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
-.job-card {
-  background: var(--surface);
+  padding: 0.45rem 0.8rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.75rem 0.9rem;
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  grid-template-areas: "medal name score del" "medal name wage del" "medal link link del";
-  column-gap: 0.6rem;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.83rem;
+  font-weight: 600;
   cursor: pointer;
 }
-.medal { grid-area: medal; font-size: 1.3rem; align-self: center; }
-.job-name { grid-area: name; font-weight: 600; align-self: end; }
-.job-score { grid-area: score; color: var(--accent); font-weight: 700; }
-.job-wage { grid-area: wage; color: var(--muted); font-size: 0.8rem; }
-.job-source-link { grid-area: link; margin-top: 0.35rem; font-size: 0.8rem; color: var(--accent); }
-.job-card .job-delete-btn { grid-area: del; align-self: center; }
+.template-btn.ghost { border-style: dashed; color: var(--muted); }
+.template-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
 
-.job-cards.rejected { margin-top: 0.75rem; opacity: 0.65; }
-.rejected-card { position: relative; display: flex; flex-direction: column; gap: 0.15rem; cursor: default; padding-right: 2.2rem; }
-.reject-label { color: var(--danger); font-weight: 700; font-size: 0.8rem; }
+h2 { font-size: 0.8rem; color: var(--muted); font-weight: 600; margin: 1.4rem 0 0.6rem; }
+h3 { font-size: 0.8rem; color: var(--muted); font-weight: 600; margin: 1.4rem 0 0.4rem; }
+
+.explain:empty { display: none; } /* 공고가 없을 땐 빈 박스만 남아서 숨긴다 */
+.explain {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin: 0 0 0.9rem;
+}
+
+.job-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.job-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.9rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "rank main del";
+  column-gap: 0.65rem;
+  align-items: start;
+  cursor: pointer;
+}
+/* 1위만 짙은 카드. 색이 곧 "가장 잘 맞는 것"이라는 뜻이 된다. */
+.job-card.hero {
+  grid-template-areas: "rank rank del" "main main main";
+  row-gap: 0.55rem;
+  background: linear-gradient(145deg, var(--hero-from), var(--hero-to));
+  color: var(--hero-ink);
+  box-shadow: var(--shadow-hero);
+}
+.job-rank {
+  grid-area: rank;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.15rem;
+  min-width: 1rem;
+}
+.job-card.hero .job-rank { color: var(--hero-ink-weak); letter-spacing: 0.06em; padding-top: 0; }
+.job-main { grid-area: main; min-width: 0; }
+.job-name {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  font-size: 0.95rem; font-weight: 700; line-height: 1.4;
+}
+.job-card.hero .job-name { font-size: 1.05rem; font-weight: 800; }
+.job-foot {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 0.6rem; margin-top: 0.55rem;
+}
+.job-wage { color: var(--muted); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.job-score {
+  font-size: 1.5rem; font-weight: 900; letter-spacing: -0.05em; line-height: 0.95;
+  font-variant-numeric: tabular-nums; white-space: nowrap; flex-shrink: 0;
+}
+.job-card.hero .job-score { font-size: 2rem; }
+.job-card.hero .job-wage { color: var(--hero-ink-weak); }
+.job-score i { font-style: normal; font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-left: 0.12rem; }
+.job-card.hero .job-score i { color: var(--hero-ink-weak); }
+.job-source-link { display: inline-block; margin-top: 0.45rem; font-size: 0.78rem; color: var(--accent); }
+.job-card.hero .job-source-link { color: var(--hero-ink-weak); }
+.job-card .job-delete-btn { grid-area: del; }
+
+.job-cards.rejected { margin-top: 0.9rem; }
+.rejected-card {
+  position: relative; display: flex; flex-direction: column; gap: 0.2rem;
+  cursor: default; padding-right: 2.4rem; box-shadow: none;
+  border: 1px solid var(--border); background: transparent;
+}
+.reject-label { color: var(--danger); font-weight: 800; font-size: 0.75rem; }
 .reject-reason { color: var(--muted); font-size: 0.8rem; }
 .reject-delete-btn, .job-delete-btn {
-  width: 1.6rem; height: 1.6rem; border-radius: 50%;
-  border: 1px solid var(--border); background: var(--bg);
+  width: 1.7rem; height: 1.7rem; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface);
   color: var(--muted); font-size: 0.85rem; line-height: 1; cursor: pointer;
   flex-shrink: 0;
 }
-.reject-delete-btn { position: absolute; top: 0.4rem; right: 0.5rem; }
+.job-card.hero .job-delete-btn {
+  border-color: rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.12); color: #fff;
+}
+.reject-delete-btn { position: absolute; top: 0.55rem; right: 0.6rem; }
 .reject-delete-btn:hover, .job-delete-btn:hover { color: var(--danger); border-color: var(--danger); }
 
 .empty, .notice, .hint { color: var(--muted); font-size: 0.9rem; padding: 0.5rem 0; }
 .notice { color: var(--danger); }
 
-.action-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.2rem; }
+.action-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.4rem; }
 .action-row button {
   flex: 1 1 auto;
-  padding: 0.7rem 0.9rem;
-  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
   font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
 }
-.action-row button.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+.action-row button.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 800; }
 .action-row button.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
-.secondary-row button, .secondary-row .file-label { font-size: 0.8rem; padding: 0.55rem 0.7rem; }
+.secondary-row button, .secondary-row .file-label { font-size: 0.8rem; padding: 0.55rem 0.7rem; font-weight: 600; }
 .file-label {
   flex: 1 1 auto;
   display: flex; align-items: center; justify-content: center;
-  border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface);
   font-size: 0.8rem; cursor: pointer;
 }
 
-.live-rank { background: var(--accent-weak); border-radius: var(--radius); padding: 0.6rem 0.8rem; margin-bottom: 0.75rem; }
-.live-rank-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.85rem; padding: 0.15rem 0; }
-.live-rank-row > span:first-child { flex: 1 1 auto; }
+.live-rank {
+  background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 0.5rem 0.8rem; margin-bottom: 1rem;
+}
+.live-rank-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  font-size: 0.85rem; padding: 0.4rem 0;
+}
+.live-rank-row + .live-rank-row { border-top: 1px solid var(--border); }
+.live-rank-row > span:first-child { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 이름이 길면 점수가 "92"/"점"으로 세로로 쪼개진다 — 점수 쪽을 줄이지 못하게 막는다. */
+.live-rank-score { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; flex-shrink: 0; }
 
 .weight-list, .limit-list { display: flex; flex-direction: column; gap: 0.6rem; }
 .weight-row { display: grid; grid-template-columns: 5.5rem 1fr 4rem; align-items: center; gap: 0.5rem; }
@@ -168,20 +237,24 @@ h3 { font-size: 0.9rem; color: var(--muted); margin: 1.2rem 0 0.4rem; }
 .field-row label { flex: 1 1 100%; font-size: 0.8rem; color: var(--muted); }
 .field-row input, .field-row select {
   flex: 1 1 auto;
-  padding: 0.55rem 0.6rem;
+  padding: 0.6rem 0.65rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
   font-size: 0.95rem;
   min-width: 0;
 }
+.field-row input:focus-visible, .field-row select:focus-visible, .paste-box textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
 .field-row span:not(.field-error) { font-size: 0.8rem; color: var(--muted); }
 .field-error { flex-basis: 100%; color: var(--danger); font-size: 0.78rem; }
 
 details.target-details, details.jobform-more, details.copy-help {
-  border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 0.6rem 0.8rem; margin-top: 0.8rem; background: var(--surface);
+  border: none; border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 0.7rem 0.9rem; margin-top: 0.9rem; background: var(--surface);
 }
 details summary { cursor: pointer; font-size: 0.88rem; color: var(--accent); font-weight: 600; }
 details[open] summary { margin-bottom: 0.6rem; }
@@ -199,9 +272,9 @@ details[open] summary { margin-bottom: 0.6rem; }
 .paste-box label { display: block; font-size: 0.88rem; font-weight: 600; color: var(--accent); margin-bottom: 0.4rem; }
 .paste-box textarea {
   width: 100%;
-  padding: 0.55rem 0.6rem;
+  padding: 0.6rem 0.65rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
   font-size: 0.9rem;
@@ -211,24 +284,28 @@ details[open] summary { margin-bottom: 0.6rem; }
 .paste-box button {
   margin-top: 0.5rem;
   width: 100%;
-  padding: 0.6rem;
+  padding: 0.65rem;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: var(--accent);
   color: #fff;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 800;
+  cursor: pointer;
 }
 .paste-result:empty { display: none; }
 .paste-result { margin: 0.5rem 0 0; font-size: 0.82rem; color: var(--text); }
 
 .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.compare-table { border-collapse: collapse; width: 100%; min-width: 480px; font-size: 0.85rem; }
-.compare-table th, .compare-table td { border-bottom: 1px solid var(--border); padding: 0.5rem 0.6rem; text-align: center; white-space: nowrap; }
-.compare-table thead th { color: var(--muted); font-weight: 700; }
+.compare-table {
+  border-collapse: collapse; width: 100%; min-width: 480px; font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.compare-table th, .compare-table td { border-bottom: 1px solid var(--border); padding: 0.55rem 0.6rem; text-align: center; white-space: nowrap; }
+.compare-table thead th { color: var(--muted); font-weight: 800; }
 .compare-table tbody th { text-align: left; color: var(--muted); font-weight: 500; }
-.compare-table .total-row th, .compare-table .total-row td { font-weight: 700; color: var(--accent); }
-.bar { background: var(--accent-weak); border-radius: 6px; height: 6px; margin-bottom: 3px; overflow: hidden; }
+.compare-table .total-row th, .compare-table .total-row td { font-weight: 900; color: var(--accent); }
+.bar { background: var(--accent-weak); border-radius: 999px; height: 6px; margin-bottom: 3px; overflow: hidden; }
 .bar-fill { background: var(--accent); height: 100%; }
 
 footer { max-width: 640px; margin: 2rem auto 0; padding: 0 1rem; text-align: center; color: var(--muted); font-size: 0.75rem; }

@@ -100,6 +100,11 @@
   // (뒤로가기로 호출된 경우) 다시 pushState하지 않아 히스토리가 쌓이지 않게 한다.
   function showView(name, fromPopstate) {
     document.querySelectorAll('.view').forEach(function (v) { v.hidden = (v.id !== 'view-' + name); });
+    // 공고 추가 버튼만 data-nav가 없다(뷰 전환이 아니라 폼을 여는 버튼) — jobform일 때 직접 켠다.
+    document.querySelectorAll('.topnav button').forEach(function (b) {
+      var mine = b.id === 'add-job-btn' ? 'jobform' : b.getAttribute('data-nav');
+      b.classList.toggle('active', mine === name);
+    });
     if (name === 'criteria') renderCriteria();
     if (name === 'compare') renderCompare();
     if (name === 'home') renderHome();
@@ -132,7 +137,7 @@
     }
     if (result.error === 'ALL_REJECTED') {
       listEl.innerHTML = '<p class="notice">' + t('home.allRejected') + '</p>' + renderRejectedList(result.rejected);
-      bindRejectDeleteButtons(listEl);
+      bindDeleteButtons(listEl, renderHome);
       return;
     }
     if (result.error === 'NO_WEIGHTS') {
@@ -140,18 +145,21 @@
       return;
     }
 
-    var medals = ['🥇', '🥈', '🥉'];
+    // 1위는 짙은 hero 카드 + "가장 잘 맞음" 꼬리표, 나머지는 순위 숫자만.
     var html = result.ranked.map(function (r, i) {
-      var medal = medals[i] || (i + 1) + '.';
       var sourceLink = r.job.sourceUrl
         ? '<a class="job-source-link" href="' + escapeHtml(r.job.sourceUrl) + '" target="_blank" rel="noopener">' + t('home.viewSource') + '</a>'
         : '';
-      return '<li class="job-card" data-id="' + r.job.id + '">' +
-        '<span class="medal">' + medal + '</span>' +
-        '<span class="job-name">' + escapeHtml(r.job.name) + '</span>' +
-        '<span class="job-score">' + t('score.fitLabel') + ' ' + Math.round(r.total) + t('score.suffix') + '</span>' +
-        '<span class="job-wage">' + t('wage.realLabel') + ' ' + Math.round(r.raw.realWageWon).toLocaleString() + t('wage.won') + '</span>' +
-        sourceLink +
+      return '<li class="job-card' + (i === 0 ? ' hero' : '') + '" data-id="' + r.job.id + '">' +
+        '<span class="job-rank">' + (i === 0 ? t('home.heroTag') : i + 1) + '</span>' +
+        '<div class="job-main">' +
+          '<span class="job-name">' + escapeHtml(r.job.name) + '</span>' +
+          '<div class="job-foot">' +
+            '<span class="job-wage">' + t('wage.realLabel') + ' ' + Math.round(r.raw.realWageWon).toLocaleString() + t('wage.won') + '</span>' +
+            '<span class="job-score">' + Math.round(r.total) + '<i>' + t('score.suffix') + '</i></span>' +
+          '</div>' +
+          sourceLink +
+        '</div>' +
         '<button type="button" class="job-delete-btn" data-id="' + r.job.id + '" aria-label="' + t('job.delete') + '">✕</button>' +
         '</li>';
     }).join('');
@@ -273,10 +281,9 @@
     if (!el) return;
     var result = JobScore.rankJobs(state.jobs, state.weights, state.targets, state.limits);
     if (result.ranked.length === 0) { el.innerHTML = ''; return; }
-    var medals = ['🥇', '🥈', '🥉'];
     el.innerHTML = result.ranked.map(function (r, i) {
-      return '<div class="live-rank-row"><span>' + (medals[i] || (i + 1) + '.') + ' ' + escapeHtml(r.job.name) +
-        '</span><span>' + Math.round(r.total) + t('score.suffix') + '</span>' +
+      return '<div class="live-rank-row"><span>' + (i + 1) + '. ' + escapeHtml(r.job.name) +
+        '</span><span class="live-rank-score">' + Math.round(r.total) + t('score.suffix') + '</span>' +
         '<button type="button" class="job-delete-btn" data-id="' + r.job.id + '" aria-label="' + t('job.delete') + '">✕</button>' +
         '</div>';
     }).join('');
