@@ -1,7 +1,7 @@
 {
-  "name": "직장비교 — 나에게 맞는 직장 계산기",
+  "name": "직장비교 — 채용공고 비교하고 순위 매기기",
   "short_name": "직장비교",
-  "description": "여러 채용공고를 내 우선순위대로 채점해 순위를 매겨주는 계산기",
+  "description": "여러 채용공고를 내 우선순위대로 견줘 순위를 매겨주는 앱",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

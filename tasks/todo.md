@@ -252,3 +252,17 @@ v10 설치 직후에도 앱이 **옛 초록 UI**를 그대로 띄웠음. 원인�
 
 ### 남은 작업 (사용자 직접)
 - [ ] Play Console에 AAB 업로드 + 위 문구/이미지 입력 + 심사 제출
+
+## 앱 제목 문구 교체 (2026-09-20, 유저 피드백)
+"직장비교 — 나에게 맞는 직장 계산기"가 앱 설명이 안 된다는 지적 → **"직장비교 — 채용공고 비교하고
+순위 매기기"**로 교체. 이 앱이 하는 일은 여러 공고를 견줘 줄 세우는 것이고 계산은 수단일 뿐이라
+제목에서 동작이 잘못 읽혔다. 반영 위치: `docs/index.html` title + meta description,
+`docs/manifest.json` name/description, `twa/app/src/main/res/raw/web_app_manifest.json`,
+`store-assets/play-store-listing.md`(스토어 앱 이름도 `직장비교 - 알바·채용공고 비교하고 순위 매기기`로
+바꾸고, 빠진 "실질시급" 검색어는 짧은 설명에 넣어 살림). SW 캐시 v17→v18.
+
+**빌드 중 알게 된 것**: `shrinkResources`를 켜면 `res/raw/web_app_manifest.json`이 APK/AAB에서
+아예 제거된다 — 코드에서 `R.raw.web_app_manifest`를 참조하는 데가 없고, AndroidManifest의
+`web_manifest_url` meta-data는 원격 URL 문자열(`resValue "string", "webManifestUrl"`)을 가리키기
+때문. 즉 이 raw 파일은 실제로 안 쓰이는 사본이라 제거돼도 무해하다(실기기 검증에서도 정상 동작).
+저장소에는 bubblewrap이 재생성 기준으로 삼으므로 그대로 동기화해 둔다.
