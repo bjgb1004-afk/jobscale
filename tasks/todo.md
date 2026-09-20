@@ -229,7 +229,15 @@ v10 설치 직후에도 앱이 **옛 초록 UI**를 그대로 띄웠음. 원인�
 - AAB 크기 1,199,807 → 1,055,699 bytes (12% 감소, 리소스 축소 효과)
 - AAB 안에 `BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map`(2MB) 존재 = R8 실제 동작 확인
   (복권명당 때 Play Console 경고가 stale이라 AAB를 직접 까서 확인해야 했던 그 파일)
-- **미검증**: 실기기 설치·구동. adb 연결 폰이 사용자 개인폰이라 설치 전 확인 필요.
+- **실기기 검증 완료 (SM R3KL600TH2P, 2026-09-20)**: `adb install -r`로 v11 설치 →
+  versionCode=11 / versionName=1.0.0 확인, `requested permissions`에 AGP 내부
+  DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION 하나만 남고 유저 권한 0개 확인.
+  Chrome까지 force-stop 후 콜드 실행(TWA는 CustomTabActivity라 Chrome도 죽여야 진짜 초기 상태) —
+  주소창 없이 정상 기동, 기존 공고 9개 보존, 상단 제목 "직장비교", 비교표 가로 스크롤 안내 표시,
+  푸터 개인정보처리방침 링크 탭 → 인앱(주소창 없음)으로 열림, 공유 도움말 문구가 "직장비교"로 교체됨.
+  **adb 함정 재확인**: Git Bash에서 `adb shell screencap -p /sdcard/x.png`는 경로가
+  `C:/Program Files/Git/sdcard/...`로 변환돼 실패한다. `MSYS_NO_PATHCONV=1`을 붙이고
+  pull 대상 로컬 경로는 Windows 표기(`C:\...`)로 줘야 한다.
 
 ### 스토어 자산 (store-assets/)
 - `screenshots/01~05.png` 1080×1920 5장 — 랭킹 / 붙여넣기 / 내 기준 / 나란히 비교 / 필수조건 탈락
@@ -243,5 +251,4 @@ v10 설치 직후에도 앱이 **옛 초록 UI**를 그대로 띄웠음. 원인�
   (Play는 모든 앱에 방침 URL을 요구함). 앱 푸터에서도 링크됨.
 
 ### 남은 작업 (사용자 직접)
-- [ ] 실기기에 app-release-signed.apk 설치해 v11 구동 확인
 - [ ] Play Console에 AAB 업로드 + 위 문구/이미지 입력 + 심사 제출
