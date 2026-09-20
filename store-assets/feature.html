@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>직장비교 기능 그래픽</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+  /* Play 기능 그래픽 1024x500. 스크린샷 프레임과 같은 필드색·타이포를 쓴다. */
+  :root { --field: #081739; --paper: #f4f6fa; --signal: #ffc53d; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1024px; height: 500px; overflow: hidden; }
+  body {
+    background: var(--field);
+    font-family: Pretendard, -apple-system, "Malgun Gothic", sans-serif;
+    position: relative;
+  }
+  .copy { position: absolute; left: 68px; top: 116px; width: 500px; z-index: 2; }
+  .lockup { display: flex; align-items: center; gap: 20px; }
+  .lockup img { width: 84px; height: 84px; border-radius: 20px; }
+  .lockup h1 { font-size: 66px; font-weight: 900; letter-spacing: -.05em; color: var(--paper); }
+  .sub {
+    margin-top: 24px; font-size: 27px; line-height: 1.45; font-weight: 400;
+    letter-spacing: -.03em; color: rgba(244,246,250,.66);
+  }
+  .sub b { font-weight: 700; color: var(--signal); }
+  .device {
+    position: absolute; right: 56px; top: 52px;
+    width: 396px; height: 396px;
+    border-radius: 28px; overflow: hidden; background: var(--paper);
+    box-shadow: 0 40px 90px -24px rgba(0,0,0,.7), 0 0 0 1px rgba(93,140,255,.22);
+  }
+  .device iframe { width: 412px; height: 1100px; border: 0; }
+</style>
+</head>
+<body>
+<div class="copy">
+  <div class="lockup">
+    <img src="../twa/store_icon.png" alt="">
+    <h1>직장비교</h1>
+  </div>
+  <p class="sub">여러 채용공고를 <b>내 기준</b>으로 채점해<br>순위를 매깁니다. 가입도 서버도 없이.</p>
+</div>
+<div class="device"><iframe id="app" title="앱 화면"></iframe></div>
+<script>
+var JOBS = [
+  {id:"j1",name:"(주)한빛물류 서초센터",pay:{amount:295,unit:"monthly"},start:"09:00",end:"18:00",daysPerWeek:5,commuteMin:25,breakMin:60,intensity:"normal",employmentType:"regular",insurance:true,weekendWork:false,sourceUrl:null},
+  {id:"j2",name:"밝은미소치과 데스크",pay:{amount:265,unit:"monthly"},start:"09:30",end:"19:00",daysPerWeek:5,commuteMin:15,breakMin:60,intensity:"easy",employmentType:"regular",insurance:true,weekendWork:false,sourceUrl:null},
+  {id:"j3",name:"CU 역삼점 주간",pay:{amount:11200,unit:"hourly"},start:"08:00",end:"16:00",daysPerWeek:6,commuteMin:10,breakMin:30,intensity:"easy",employmentType:"contract",insurance:false,weekendWork:true,sourceUrl:null}
+];
+localStorage.setItem('jobscale.jobs', JSON.stringify(JOBS));
+localStorage.setItem('jobscale.weights', JSON.stringify({pay:3,commute:5,endTime:5,startTime:4,days:4,intensity:3,stability:2}));
+localStorage.setItem('jobscale.limits', JSON.stringify({minPay:null,maxEndTime:null,maxCommute:null,maxDays:null}));
+localStorage.removeItem('jobscale.targets');
+
+var iframe = document.getElementById('app');
+iframe.addEventListener('load', function () {
+  // 앱 init이 showView에서 scrollTo(0,0)을 부르므로 그 뒤에 밀어 올려야 먹는다.
+  setTimeout(function () {
+    var d = iframe.contentDocument;
+    d.querySelector('.topbar').style.display = 'none';
+    d.querySelector('.question').style.display = 'none';
+    d.querySelector('.template-row').style.display = 'none';
+    d.getElementById('job-count-label').style.display = 'none';
+    d.getElementById('explain-text').style.display = 'none';
+    d.querySelector('.secondary-row').style.display = 'none';
+    d.body.style.paddingTop = '18px';
+    window.__frameReady = true;
+  }, 400);
+});
+iframe.src = '../docs/index.html';
+</script>
+</body>
+</html>

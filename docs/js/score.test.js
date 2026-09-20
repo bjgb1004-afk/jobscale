@@ -177,4 +177,19 @@ var weightsEqual = { pay: 1, commute: 1, endTime: 1, startTime: 1, days: 1, inte
   console.log('OK 10: 전체 파이프라인 정렬 + 근거 데이터(explainData) 정상');
 })();
 
+(function testMinPayReasonIsDisplayable() {
+  // 시급 공고는 월급 환산에서 218.98799999999994 같은 값이 나온다 — 탈락 사유 문구에
+  // 그대로 박히면 안 되고, 반올림으로 한계값과 같아 보여서도 안 된다.
+  var hourly = { id: 'h', name: '시급공고', pay: { amount: 11200, unit: 'hourly' },
+    start: '08:00', end: '16:00', daysPerWeek: 6, commuteMin: 10, breakMin: 30,
+    intensity: 'easy', employmentType: 'contract', insurance: false };
+  var out = S.rankJobs([hourly], weightsEqual, S.DEFAULT_TARGETS, { minPay: 230 });
+  var reason = out.rejected[0].reasons.filter(function (r) { return r.code === 'MIN_PAY'; })[0];
+  var decimals = String(reason.actual).split('.')[1];
+  assert.ok(reason, 'MIN_PAY reason exists');
+  assert.ok(!decimals || decimals.length <= 1, 'decimals<=1, got ' + reason.actual);
+  assert.ok(reason.actual < reason.limit, 'displayed value must stay below the limit');
+  console.log('OK 11: 시급 공고 MIN_PAY 탈락 사유에 부동소수 노출 없음');
+})();
+
 console.log('\n모든 테스트 통과.');

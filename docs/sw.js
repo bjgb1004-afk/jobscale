@@ -2,7 +2,7 @@
  * 최소 서비스워커 — 앱 셸 캐싱, 오프라인 동작용.
  * 네트워크 우선 + 캐시 폴백. 온라인이면 항상 최신, 오프라인이면 마지막 캐시본.
  */
-var CACHE_NAME = 'jobscale-v16';
+var CACHE_NAME = 'jobscale-v17';
 var APP_SHELL = [
   './',
   './index.html',

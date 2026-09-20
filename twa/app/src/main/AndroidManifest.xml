@@ -23,7 +23,6 @@
     package="io.github.bjgb1004_afk.jobscore">
 
     
-        <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     
 
     

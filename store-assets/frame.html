@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>직장비교 스토어 스크린샷 프레임</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@600&display=swap">
+<style>
+  /* 스토어 스크린샷 1080x1920 캔버스.
+     앱 화면은 이미지가 아니라 iframe을 확대해서 넣는다 — 412px 스크린샷을 1.82배로
+     늘리면 글자가 뭉개지지만, iframe에 transform:scale을 걸면 그 배율로 다시 그려져서
+     글자가 선명하게 남는다. */
+  :root {
+    --field: #081739;      /* 앱 네이비보다 더 깊게 — 앱 화면(#F4F6FA)이 떠 보이게 */
+    --paper: #f4f6fa;      /* 앱 배경색 그대로 가져온 헤드라인 색 */
+    --signal:#ffc53d;      /* 프레임당 한 단어에만 쓰는 유일한 난색 */
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; }
+  body {
+    background: var(--field);
+    font-family: Pretendard, -apple-system, "Malgun Gothic", sans-serif;
+    position: relative;
+  }
+  .copy { position: absolute; top: 104px; left: 84px; right: 84px; z-index: 2; }
+  h1 {
+    font-size: 88px; line-height: 1.14; font-weight: 900;
+    letter-spacing: -.05em; color: var(--paper);
+    white-space: pre-line;
+  }
+  h1 em { font-style: normal; color: var(--signal); }
+  .sub {
+    margin-top: 26px; font-size: 35px; line-height: 1.5; font-weight: 400;
+    letter-spacing: -.03em; color: rgba(244,246,250,.62); max-width: 800px;
+  }
+  .device {
+    position: absolute; left: 84px; top: 560px;
+    width: 750px; height: 1666px;
+    border-radius: 42px; overflow: hidden;
+    background: var(--paper);
+    box-shadow: 0 60px 120px -30px rgba(0,0,0,.65), 0 0 0 1px rgba(93,140,255,.22);
+    z-index: 1; isolation: isolate;
+  }
+  /* 앱 화면은 캔버스 아래로 흘러나가며 잘린다. 잘린 단면을 배경색으로 녹여
+     의도된 크롭으로 보이게 한다 — 화면 밖이 아니라 캔버스 바닥 기준이어야 한다. */
+  .fade {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 260px; z-index: 3;
+    background: linear-gradient(to bottom, rgba(8,23,57,0), var(--field));
+    pointer-events: none;
+  }
+  .device iframe {
+    width: 412px; height: 915px; border: 0;
+    transform: scale(1.8204); transform-origin: top left;
+  }
+</style>
+</head>
+<body>
+<div class="copy">
+  <h1 id="headline"></h1>
+  <p class="sub" id="sub"></p>
+</div>
+<div class="device"><iframe id="app" title="앱 화면"></iframe></div>
+<div class="fade"></div>
+
+<script>
+var JOBS = [
+  {id:"j1",name:"(주)한빛물류 서초센터",pay:{amount:295,unit:"monthly"},start:"09:00",end:"18:00",daysPerWeek:5,commuteMin:25,breakMin:60,intensity:"normal",employmentType:"regular",insurance:true,weekendWork:false,sourceUrl:null},
+  {id:"j2",name:"밝은미소치과 데스크",pay:{amount:265,unit:"monthly"},start:"09:30",end:"19:00",daysPerWeek:5,commuteMin:15,breakMin:60,intensity:"easy",employmentType:"regular",insurance:true,weekendWork:false,sourceUrl:null},
+  {id:"j3",name:"CU 역삼점 주간",pay:{amount:11200,unit:"hourly"},start:"08:00",end:"16:00",daysPerWeek:6,commuteMin:10,breakMin:30,intensity:"easy",employmentType:"contract",insurance:false,weekendWork:true,sourceUrl:null},
+  {id:"j4",name:"대성이앤씨 생산직",pay:{amount:330,unit:"monthly"},start:"07:00",end:"19:00",daysPerWeek:5,commuteMin:55,breakMin:60,intensity:"hard",employmentType:"regular",insurance:true,weekendWork:false,sourceUrl:null}
+];
+var PARENTING = {pay:3,commute:5,endTime:5,startTime:4,days:4,intensity:3,stability:2};
+var NO_LIMITS = {minPay:null,maxEndTime:null,maxCommute:null,maxDays:null};
+
+var FRAMES = {
+  1: { head:'머릿속 비교를\n<em>점수</em>로 끝냅니다',
+       sub:'급여·통근·퇴근시각을 내 기준대로 채점해 순위를 매깁니다.',
+       limits:NO_LIMITS, view:'home' },
+  2: { head:'공고 복사해서\n<em>붙여넣기</em> 한 번',
+       sub:'급여·근무시간·요일을 알아서 채웁니다. 일급 100,620원이면 월 219만원으로 환산해 둡니다.',
+       limits:NO_LIMITS, view:'paste' },
+  3: { head:'중요한 건\n<em>사람마다</em> 다릅니다',
+       sub:'통근이 중요한 사람과 급여가 중요한 사람의 1위는 다릅니다. 별점을 옮기면 순위가 그 자리에서 바뀝니다.',
+       limits:NO_LIMITS, view:'criteria' },
+  4: { head:'월급만 보면\n<em>놓치는</em> 것들',
+       sub:'통근 시간까지 넣은 실질시급, 주말 근무, 업무강도를 한 표에 나란히 둡니다.',
+       limits:NO_LIMITS, view:'compare' },
+  5: { head:'못 맞추는 조건은\n<em>아예</em> 걸러냅니다',
+       sub:'퇴근 18시 30분, 통근 40분 같은 선을 정해두면 넘는 공고는 사유와 함께 탈락합니다.',
+       limits:{minPay:230,maxEndTime:'18:30',maxCommute:40,maxDays:5}, view:'home' }
+};
+
+var n = Number(new URLSearchParams(location.search).get('n') || 1);
+var f = FRAMES[n];
+document.getElementById('headline').innerHTML = f.head;
+document.getElementById('sub').textContent = f.sub;
+
+// 같은 오리진이라 부모가 앱의 localStorage를 먼저 채워두고 iframe을 띄운다.
+localStorage.setItem('jobscale.jobs', JSON.stringify(JOBS));
+localStorage.setItem('jobscale.weights', JSON.stringify(PARENTING));
+localStorage.setItem('jobscale.limits', JSON.stringify(f.limits));
+localStorage.removeItem('jobscale.targets');
+
+var iframe = document.getElementById('app');
+iframe.addEventListener('load', function () {
+  var doc = iframe.contentDocument;
+  if (f.view === 'criteria') doc.querySelector('[data-nav="criteria"]').click();
+  if (f.view === 'compare') doc.querySelector('[data-nav="compare"]').click();
+  if (f.view === 'paste') {
+    doc.getElementById('add-job-btn').click();
+    doc.getElementById('jf-paste').value =
+      '[알바천국] (주)해성식품 제조 생산직\n급여 일급 100,620원\n근무요일 주5일 (월~금)\n근무시간 08:00~17:00\n서울 강서구 마곡동';
+    doc.getElementById('jf-paste-apply').click();
+  }
+  window.__frameReady = true;
+});
+iframe.src = '../docs/index.html';
+</script>
+</body>
+</html>

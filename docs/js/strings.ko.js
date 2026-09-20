@@ -20,8 +20,9 @@ var KO_JOSA = {
 };
 
 var STRINGS_KO = {
-  'app.title': '직비',
+  'app.title': '직장비교',
   'app.footer.disclaimer': '이 점수는 회사 평가가 아니라 내 기준 적합도입니다.',
+  'app.footer.privacy': '개인정보처리방침',
 
   'nav.home': '홈',
   'nav.criteria': '내 기준',
@@ -39,9 +40,9 @@ var STRINGS_KO = {
   'home.viewSource': '공고 보러가기',
   'job.shareHelp.summary': '공고를 빠르게 옮겨오는 법',
   'job.shareHelp.intro': '채용 앱마다 방식이 달라요. 급여·근무시간까지 자동으로 채우려면 ②번 붙여넣기를 쓰는 게 가장 확실합니다.',
-  'job.shareHelp.step1': '① 공유가 되는 앱(알바천국 등): 공고 화면에서 공유 → 목록에서 "직비"를 선택하면 등록 화면이 열려요. 다만 대부분 제목과 링크까지만 들어옵니다.',
+  'job.shareHelp.step1': '① 공유가 되는 앱(알바천국 등): 공고 화면에서 공유 → 목록에서 "직장비교"를 선택하면 등록 화면이 열려요. 다만 대부분 제목과 링크까지만 들어옵니다.',
   'job.shareHelp.step2': '② 급여·근무시간까지 채우려면: 공고 내용을 복사한 뒤, 아래 "공고 내용 붙여넣기" 칸에 붙여넣고 "이 내용으로 채우기"를 누르세요.',
-  'job.shareHelp.step3': '사람인·알바몬처럼 공유 목록에 직비가 아예 안 뜨는 앱도 있어요. 그 앱들은 자체 공유창(카톡·문자 등)만 띄우기 때문이라, ②번 붙여넣기로 등록하면 됩니다.',
+  'job.shareHelp.step3': '사람인·알바몬처럼 공유 목록에 직장비교가 아예 안 뜨는 앱도 있어요. 그 앱들은 자체 공유창(카톡·문자 등)만 띄우기 때문이라, ②번 붙여넣기로 등록하면 됩니다.',
   'job.shareHelp.note': '공고 글이 복사가 안 되는 사이트라면, 바로 아래 "공고 복사가 안 될 때" 도움말을 보세요.',
   'home.rejectedReason': '{reason}',
 
@@ -155,6 +156,7 @@ var STRINGS_KO = {
   'unit.no': '아니오',
   'compare.back': '돌아가기',
   'compare.empty': '비교할 공고가 없습니다.',
+  'compare.scrollHint': '표를 옆으로 밀면 나머지 공고가 보입니다.',
 
   'explain.top2': '{top}{topSubj} {best1}{best1And} {best2}에서 당신 기준에 가장 잘 맞습니다.',
   'explain.top1': '{top}{topSubj} {best1}에서 당신 기준에 가장 잘 맞습니다.',

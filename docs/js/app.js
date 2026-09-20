@@ -55,8 +55,7 @@
     limits: load(STORAGE_KEYS.limits, DEFAULT_LIMITS),
     targets: load(STORAGE_KEYS.targets, JobScore.DEFAULT_TARGETS),
     editingJobId: null,
-    viewOnly: false,
-    activeTemplate: null
+    viewOnly: false
   };
 
   function persistJobs() { persist(STORAGE_KEYS.jobs, state.jobs); }
@@ -116,9 +115,18 @@
   }
 
   // ---------- 홈 ----------
+  // 활성 템플릿은 저장하지 않고 현재 가중치에서 되찾는다 — 앱을 다시 열거나 백업을 복원해도
+  // 선택 상태가 그대로 보인다(예전엔 메모리에만 있어서 재실행하면 표시가 사라졌다).
+  function matchedTemplate() {
+    return Object.keys(TEMPLATES).filter(function (name) {
+      return JobScore.SCORE_KEYS.every(function (k) { return TEMPLATES[name][k] === state.weights[k]; });
+    })[0] || null;
+  }
+
   function updateTemplateButtons() {
+    var active = matchedTemplate();
     document.querySelectorAll('[data-template]').forEach(function (btn) {
-      btn.classList.toggle('active', btn.getAttribute('data-template') === state.activeTemplate);
+      btn.classList.toggle('active', btn.getAttribute('data-template') === active);
     });
   }
 
@@ -244,7 +252,6 @@
   function applyTemplate(name) {
     if (name === 'custom') { showView('criteria'); return; }
     state.weights = clone(TEMPLATES[name]);
-    state.activeTemplate = name;
     persistWeights();
     showView('home');
   }
@@ -291,7 +298,6 @@
   }
 
   function saveCriteria() {
-    state.activeTemplate = null; // 직접 조정했으니 더 이상 어느 템플릿과도 일치한다고 표시하지 않음
     JobScore.SCORE_KEYS.forEach(function (key) {
       var input = document.querySelector('[data-weight="' + key + '"]');
       if (input) state.weights[key] = parseInt(input.value, 10) || 0;
@@ -477,6 +483,8 @@
       return '<td><button type="button" class="job-delete-btn" data-id="' + r.job.id + '" aria-label="' + t('job.delete') + '">✕</button></td>';
     }).join('') + '</tr>';
     el.innerHTML = '<table class="compare-table"><thead>' + head + '</thead><tbody>' + body + scoreRow + deleteRow + '</tbody></table>';
+    var hint = document.getElementById('compare-scroll-hint');
+    if (hint) hint.hidden = el.scrollWidth <= el.clientWidth;
     bindDeleteButtons(el, renderCompare);
   }
 
@@ -591,7 +599,6 @@
       var input = document.querySelector('[data-weight="' + key + '"]');
       if (input) input.addEventListener('input', function () {
         state.weights[key] = parseInt(input.value, 10) || 0;
-        state.activeTemplate = null;
         updateStarLabel(key);
         persistWeights();
         renderCriteriaLiveRank();

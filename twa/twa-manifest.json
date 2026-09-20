@@ -11,7 +11,7 @@
   "navigationDividerColor": "#000000",
   "navigationDividerColorDark": "#000000",
   "backgroundColor": "#F4F6FA",
-  "enableNotifications": true,
+  "enableNotifications": false,
   "startUrl": "/jobscale/",
   "iconUrl": "https://bjgb1004-afk.github.io/jobscale/icon.svg",
   "splashScreenFadeOutDuration": 300,
@@ -19,8 +19,8 @@
     "path": "C:\\Users\\pc\\Desktop\\ideabox\\job\\twa\\android.keystore",
     "alias": "android"
   },
-  "appVersionName": "9",
-  "appVersionCode": 9,
+  "appVersionName": "1.0.0",
+  "appVersionCode": 11,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://bjgb1004-afk.github.io/jobscale/manifest.json",
@@ -51,5 +51,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "9"
+  "appVersion": "1.0.0"
 }

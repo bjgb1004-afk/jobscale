@@ -190,3 +190,58 @@ v10 설치 직후에도 앱이 **옛 초록 UI**를 그대로 띄웠음. 원인�
 → fetch 핸들러를 **네트워크 우선 + 실패 시에만 캐시 폴백**으로 교체(CACHE_NAME v16).
    오프라인 동작 유지, 쿼리(`?title=...`) 붙은 주소는 index.html로 폴백하고 캐시에는 안 넣음.
    교체 후 실기기 재실행에서 네이비 UI 정상 표시 확인.
+
+## 구글플레이 등록 준비 — 버그 수정 + 최적화 + 스토어 자산 (2026-09-20)
+
+### 발견·수정한 버그 5건
+- [x] **앱 이름 불일치가 실사용을 막고 있었음**: 런처/매니페스트는 "직장비교"인데 앱 안 제목(`app.title`)과
+      도움말은 "직비"였음. 도움말이 "공유 목록에서 직비를 선택하세요"라고 안내하는데 실제 시스템 공유
+      시트에는 launcherName인 "직장비교"가 뜨므로, 안내대로 따라가면 찾을 수가 없었다. 전부 "직장비교"로
+      통일(`<title>`, `app.title`, shareHelp 문구). 아이콘 워드마크의 "직비"는 기존 디자인대로 유지.
+- [x] **탈락 사유에 부동소수가 그대로 노출**: 시급 공고를 월급으로 환산하면 218.98799999999994 같은 값이
+      나와 "월급 218.98799999999994만원 < 최저 기준 230만원"으로 표시됐다. score.js에서 소수 1자리
+      **내림**으로 고침(반올림을 쓰면 229.96이 "230만원 < 230만원"으로 모순돼 보임). 회귀 테스트 11번 추가.
+- [x] **템플릿 선택 표시가 앱을 다시 열면 사라짐**: activeTemplate이 메모리에만 있었음. 저장하는 대신
+      현재 가중치에서 역으로 찾는 `matchedTemplate()`으로 바꿔 상태 필드 자체를 삭제(순감소).
+      백업 복원·공유링크로 들어와도 표시가 맞는다.
+- [x] **나란히 비교표가 가로로 잘리는데 스크롤할 수 있다는 표시가 없었음**: 공고 3개 이상이면 3번째부터
+      화면 밖. 표가 실제로 넘칠 때만 "표를 옆으로 밀면 나머지 공고가 보입니다" 안내를 띄우게 함.
+- [x] **Android 15 edge-to-edge 겹침 위험**: `viewport-fit=cover`를 쓰면서 `env(safe-area-inset-*)`를
+      안 썼음. topbar 위/body 아래에 safe-area 패딩 추가.
+- [x] 접근성: 중요도 슬라이더 7개의 `<label>`에 `for`가 없어 TalkBack이 이름을 못 읽었음 → id/for 연결.
+
+### 구글 최적화 요구사항 반영 (복권명당·현장사업자ONE 전례 적용)
+두 앱에서 Play Console "앱 최적화" 패널이 **R8 미적용/리소스 축소 안 됨**을 "낮음"으로 지적했던 건
+([[project_play_store_submission]] 참고), 이 프로젝트에도 선제 적용:
+- [x] `minifyEnabled true`만 있고 `shrinkResources`가 꺼져 있었음 → `shrinkResources true` +
+      `proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'` 추가
+      (기존엔 proguard 규칙 파일 없이 R8이 돌고 있었음). `proguard-rules.pro` 신규 생성.
+- [x] 미사용 권한 제거: `POST_NOTIFICATIONS`가 선언돼 있는데 앱에 알림 코드가 0줄이었음 →
+      `enableNotifications: false` + AndroidManifest에서 uses-permission 제거.
+      **결과: 선언 권한 0개**(aapt2 dump로 확인, AGP 내부 signature 권한만 남음).
+- [x] versionCode 10→11, versionName "10"→"1.0.0" (첫 스토어 출시라 버전 표기를 정상화)
+
+### 빌드 산출물 (검증 완료)
+`gradlew.bat assembleRelease bundleRelease` → zipalign+apksigner(APK) / jarsigner(AAB) 수동 서명.
+- `twa/app/build/outputs/bundle/release/app-release-signed.aab` — **Play Console 업로드용**, jar verified
+- `twa/app/build/outputs/apk/release/app-release-signed.apk` — 실기기 확인용
+- SHA-256 지문 `E8:0D:...:C3:40` 기존과 동일 → **assetlinks.json 안 건드려도 됨**
+- AAB 크기 1,199,807 → 1,055,699 bytes (12% 감소, 리소스 축소 효과)
+- AAB 안에 `BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map`(2MB) 존재 = R8 실제 동작 확인
+  (복권명당 때 Play Console 경고가 stale이라 AAB를 직접 까서 확인해야 했던 그 파일)
+- **미검증**: 실기기 설치·구동. adb 연결 폰이 사용자 개인폰이라 설치 전 확인 필요.
+
+### 스토어 자산 (store-assets/)
+- `screenshots/01~05.png` 1080×1920 5장 — 랭킹 / 붙여넣기 / 내 기준 / 나란히 비교 / 필수조건 탈락
+- `feature-graphic.png` 1024×500 (알파 없음)
+- `frame.html` / `feature.html` — 위 이미지의 원본. 앱 스크린샷을 이미지로 붙인 게 아니라 **iframe으로
+  실제 앱을 띄우고 `transform: scale`로 확대해서 찍는다.** 412px 스크린샷을 1.8배 늘리면 글자가
+  뭉개지지만 이 방식은 그 배율로 다시 렌더링되므로 선명하다. UI가 바뀌면 다시 찍기만 하면 갱신됨.
+- `play-store-listing.md` — 앱 이름/짧은 설명/전체 설명/카테고리/ASO 전략/콘텐츠 등급/Data safety/
+  앱 콘텐츠 선언/TWA 심사 주의사항
+- `docs/privacy.html` 신규 — 개인정보처리방침. URL: https://bjgb1004-afk.github.io/jobscale/privacy.html
+  (Play는 모든 앱에 방침 URL을 요구함). 앱 푸터에서도 링크됨.
+
+### 남은 작업 (사용자 직접)
+- [ ] 실기기에 app-release-signed.apk 설치해 v11 구동 확인
+- [ ] Play Console에 AAB 업로드 + 위 문구/이미지 입력 + 심사 제출

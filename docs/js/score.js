@@ -120,7 +120,9 @@
       var payManwon = payWon / 10000;
 
       if (limits.minPay != null && payManwon < limits.minPay) {
-        reasons.push({ code: 'MIN_PAY', actual: payManwon, limit: limits.minPay });
+        // 시급→월급 환산이 218.98799999999994 같은 부동소수를 만든다. 내림(소수1자리)으로
+        // 표시해야 반올림 때문에 '230만원 < 230만원'처럼 모순돼 보이는 문구가 안 나온다.
+        reasons.push({ code: 'MIN_PAY', actual: Math.floor(payManwon * 10) / 10, limit: limits.minPay });
       }
       if (limits.maxEndTime && timeToMinutes(job.end) > timeToMinutes(limits.maxEndTime)) {
         reasons.push({ code: 'MAX_END_TIME', actual: job.end, limit: limits.maxEndTime });

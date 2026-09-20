@@ -40,12 +40,13 @@ body {
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   line-height: 1.5;
-  padding-bottom: 3rem;
+  /* viewport-fit=cover라 Android 15 edge-to-edge에서 내용이 제스처바 뒤로 들어간다 */
+  padding-bottom: calc(3rem + env(safe-area-inset-bottom));
 }
 
 .topbar {
   background: var(--bg);
-  padding: 1.1rem 1rem 0.7rem;
+  padding: calc(1.1rem + env(safe-area-inset-top)) 1rem 0.7rem;
   position: sticky;
   top: 0;
   z-index: 10;

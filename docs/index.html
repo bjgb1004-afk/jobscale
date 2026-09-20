@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>직비</title>
+<title>직장비교 — 나에게 맞는 직장 계산기</title>
 <meta name="theme-color" content="#1d4ed8">
 <meta name="description" content="여러 채용공고를 내 우선순위대로 채점해 순위를 매겨주는 계산기. 서버·가입 없이 무료로 사용합니다.">
 <link rel="manifest" href="manifest.json">
@@ -61,38 +61,38 @@
     <div class="weight-list">
       <!-- 항목당: 라벨 + 네이티브 range 슬라이더(0~5) + 별 표시. 라이브러리 없음. -->
       <div class="weight-row">
-        <label data-i18n="weight.pay"></label>
-        <input type="range" min="0" max="5" step="1" data-weight="pay">
+        <label for="w-pay" data-i18n="weight.pay"></label>
+        <input type="range" id="w-pay" min="0" max="5" step="1" data-weight="pay">
         <span class="star-label" data-star-label="pay"></span>
       </div>
       <div class="weight-row">
-        <label data-i18n="weight.commute"></label>
-        <input type="range" min="0" max="5" step="1" data-weight="commute">
+        <label for="w-commute" data-i18n="weight.commute"></label>
+        <input type="range" id="w-commute" min="0" max="5" step="1" data-weight="commute">
         <span class="star-label" data-star-label="commute"></span>
       </div>
       <div class="weight-row">
-        <label data-i18n="weight.endTime"></label>
-        <input type="range" min="0" max="5" step="1" data-weight="endTime">
+        <label for="w-endTime" data-i18n="weight.endTime"></label>
+        <input type="range" id="w-endTime" min="0" max="5" step="1" data-weight="endTime">
         <span class="star-label" data-star-label="endTime"></span>
       </div>
       <div class="weight-row">
-        <label data-i18n="weight.startTime"></label>
-        <input type="range" min="0" max="5" step="1" data-weight="startTime">
+        <label for="w-startTime" data-i18n="weight.startTime"></label>
+        <input type="range" id="w-startTime" min="0" max="5" step="1" data-weight="startTime">
         <span class="star-label" data-star-label="startTime"></span>
       </div>
       <div class="weight-row">
-        <label data-i18n="weight.days"></label>
-        <input type="range" min="0" max="5" step="1" data-weight="days">
+        <label for="w-days" data-i18n="weight.days"></label>
+        <input type="range" id="w-days" min="0" max="5" step="1" data-weight="days">
         <span class="star-label" data-star-label="days"></span>
       </div>
       <div class="weight-row">
-        <label data-i18n="weight.intensity"></label>
-        <input type="range" min="0" max="5" step="1" data-weight="intensity">
+        <label for="w-intensity" data-i18n="weight.intensity"></label>
+        <input type="range" id="w-intensity" min="0" max="5" step="1" data-weight="intensity">
         <span class="star-label" data-star-label="intensity"></span>
       </div>
       <div class="weight-row">
-        <label data-i18n="weight.stability"></label>
-        <input type="range" min="0" max="5" step="1" data-weight="stability">
+        <label for="w-stability" data-i18n="weight.stability"></label>
+        <input type="range" id="w-stability" min="0" max="5" step="1" data-weight="stability">
         <span class="star-label" data-star-label="stability"></span>
       </div>
     </div>
@@ -261,6 +261,7 @@
   <!-- ④ 나란히 비교 -->
   <section id="view-compare" class="view" hidden>
     <h2 data-i18n="compare.title"></h2>
+    <p id="compare-scroll-hint" class="hint" hidden data-i18n="compare.scrollHint"></p>
     <div id="compare-table-wrap" class="scroll-x"></div>
     <div class="action-row">
       <button type="button" data-nav="home" data-i18n="compare.back"></button>
@@ -271,6 +272,7 @@
 
 <footer>
   <p data-i18n="app.footer.disclaimer"></p>
+  <p><a href="privacy.html" data-i18n="app.footer.privacy"></a></p>
 </footer>
 
 <script src="js/strings.ko.js"></script>
