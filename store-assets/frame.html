@@ -4,13 +4,10 @@
 <meta charset="UTF-8">
 <title>직장비교 스토어 스크린샷 프레임</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@600&display=swap">
 <style>
   /* 스토어 스크린샷 1080x1920 캔버스.
-     앱 화면은 이미지가 아니라 iframe을 확대해서 넣는다 — 412px 스크린샷을 1.82배로
-     늘리면 글자가 뭉개지지만, iframe에 transform:scale을 걸면 그 배율로 다시 그려져서
-     글자가 선명하게 남는다. */
+     앱 화면은 이미지가 아니라 iframe을 확대해서 넣는다 — 412px 화면을 1.82배로 늘리면
+     iframe이 그 배율로 다시 렌더링되므로 이미지 확대와 달리 글자가 뭉개지지 않는다. */
   :root {
     --field: #081739;      /* 앱 네이비보다 더 깊게 — 앱 화면(#F4F6FA)이 떠 보이게 */
     --paper: #f4f6fa;      /* 앱 배경색 그대로 가져온 헤드라인 색 */
@@ -25,14 +22,14 @@
   }
   .copy { position: absolute; top: 104px; left: 84px; right: 84px; z-index: 2; }
   h1 {
-    font-size: 88px; line-height: 1.14; font-weight: 900;
+    font-size: 84px; line-height: 1.16; font-weight: 900;
     letter-spacing: -.05em; color: var(--paper);
     white-space: pre-line;
   }
   h1 em { font-style: normal; color: var(--signal); }
   .sub {
-    margin-top: 26px; font-size: 35px; line-height: 1.5; font-weight: 400;
-    letter-spacing: -.03em; color: rgba(244,246,250,.62); max-width: 800px;
+    margin-top: 26px; font-size: 33px; line-height: 1.5; font-weight: 400;
+    letter-spacing: -.03em; color: rgba(244,246,250,.62); max-width: 840px;
   }
   .device {
     position: absolute; left: 84px; top: 560px;
@@ -72,23 +69,35 @@ var JOBS = [
 ];
 var PARENTING = {pay:3,commute:5,endTime:5,startTime:4,days:4,intensity:3,stability:2};
 var NO_LIMITS = {minPay:null,maxEndTime:null,maxCommute:null,maxDays:null};
+var PASTE_TEXT = '(주)해성식품 제조 생산직\n급여 일급 100,620원\n근무요일 주5일 (월~금)\n근무시간 08:00~17:00\n서울 강서구 마곡동';
 
+// 설치 결정에 미치는 영향이 큰 순서 — 핵심가치(1) → 진입장벽 해소(2) → 차별화 인사이트(3) →
+// 개인화(4~5) → 상세비교(6) → 스마트필터(7) → 신뢰 마감(8).
 var FRAMES = {
-  1: { head:'머릿속 비교를\n<em>점수</em>로 끝냅니다',
+  1: { head:'공고 세 개, 뭐가 제일\n<em>나은</em> 건지 헷갈릴 때',
        sub:'급여·통근·퇴근시각을 내 기준대로 채점해 순위를 매깁니다.',
        limits:NO_LIMITS, view:'home' },
-  2: { head:'공고 복사해서\n<em>붙여넣기</em> 한 번',
-       sub:'급여·근무시간·요일을 알아서 채웁니다. 일급 100,620원이면 월 219만원으로 환산해 둡니다.',
+  2: { head:'공고 글 복사해서\n<em>붙여넣기</em> 한 번이면 끝',
+       sub:'급여·근무시간·요일을 알아서 채웁니다. 일급도 월급으로 환산해 둡니다.',
        limits:NO_LIMITS, view:'paste' },
-  3: { head:'중요한 건\n<em>사람마다</em> 다릅니다',
-       sub:'통근이 중요한 사람과 급여가 중요한 사람의 1위는 다릅니다. 별점을 옮기면 순위가 그 자리에서 바뀝니다.',
+  3: { head:'월급만 보고 골랐다가\n<em>손해</em> 보지 마세요',
+       sub:'왕복 통근시간까지 넣은 실질시급으로, 진짜 남는 돈을 보여드립니다.',
+       limits:NO_LIMITS, view:'home-real' },
+  4: { head:'중요한 건\n<em>사람마다</em> 다릅니다',
+       sub:'별점을 옮기면 순위가 그 자리에서 바뀝니다. 내 우선순위대로.',
        limits:NO_LIMITS, view:'criteria' },
-  4: { head:'월급만 보면\n<em>놓치는</em> 것들',
-       sub:'통근 시간까지 넣은 실질시급, 주말 근무, 업무강도를 한 표에 나란히 둡니다.',
+  5: { head:'버튼 하나 누르면\n순위가 <em>다시</em> 매겨짐',
+       sub:'육아 병행형·돈 우선형 등 4가지 기본값 중 하나만 눌러도 충분합니다.',
+       limits:NO_LIMITS, view:'home-templates' },
+  6: { head:'궁금했던 걸\n<em>한 표</em>에 나란히',
+       sub:'월급·실질시급·통근·업무강도·주말근무까지 눈으로 직접 비교하세요.',
        limits:NO_LIMITS, view:'compare' },
-  5: { head:'못 맞추는 조건은\n<em>아예</em> 걸러냅니다',
-       sub:'퇴근 18시 30분, 통근 40분 같은 선을 정해두면 넘는 공고는 사유와 함께 탈락합니다.',
-       limits:{minPay:230,maxEndTime:'18:30',maxCommute:40,maxDays:5}, view:'home' }
+  7: { head:'못 맞추는 조건은\n<em>아예</em> 걸러냅니다',
+       sub:'퇴근 18시 30분, 통근 40분처럼 선을 그으면 넘는 공고는 사유와 함께 탈락합니다.',
+       limits:{minPay:230,maxEndTime:'18:30',maxCommute:40,maxDays:5}, view:'home' },
+  8: { head:'내 공고 정보는\n<em>내 폰에만</em>',
+       sub:'회원가입도 서버도 없습니다. 백업과 공유도 내가 누를 때만 동작합니다.',
+       limits:NO_LIMITS, view:'home-privacy' }
 };
 
 var n = Number(new URLSearchParams(location.search).get('n') || 1);
@@ -103,17 +112,40 @@ localStorage.setItem('jobscale.limits', JSON.stringify(f.limits));
 localStorage.removeItem('jobscale.targets');
 
 var iframe = document.getElementById('app');
+function hide(doc, sel) { var el = doc.querySelector(sel); if (el) el.style.display = 'none'; }
+
 iframe.addEventListener('load', function () {
   var doc = iframe.contentDocument;
+  var win = iframe.contentWindow;
+
   if (f.view === 'criteria') doc.querySelector('[data-nav="criteria"]').click();
   if (f.view === 'compare') doc.querySelector('[data-nav="compare"]').click();
   if (f.view === 'paste') {
     doc.getElementById('add-job-btn').click();
-    doc.getElementById('jf-paste').value =
-      '[알바천국] (주)해성식품 제조 생산직\n급여 일급 100,620원\n근무요일 주5일 (월~금)\n근무시간 08:00~17:00\n서울 강서구 마곡동';
+    doc.getElementById('jf-paste').value = PASTE_TEXT;
     doc.getElementById('jf-paste-apply').click();
   }
-  window.__frameReady = true;
+
+  // 실질시급 인사이트: 상단 nav·질문·템플릿을 걷어내 순위카드+근거문장이 화면 위로 바로 오게 한다.
+  // (iframe은 412px 기준 렌더라 스케일을 기본값 이상 올리면 가로폭이 device box를 넘어
+  //  오른쪽이 잘린다 — 세로만 덜어내고 스케일은 다른 프레임과 동일하게 유지한다.)
+  if (f.view === 'home-real') {
+    hide(doc, '.topbar'); hide(doc, '.question'); hide(doc, '.template-row');
+  }
+  // 템플릿 원터치: 크롭 대신 실제로 "돈 우선형" 버튼을 눌러 순위가 바뀐 결과를 그대로 보여준다.
+  if (f.view === 'home-templates') {
+    doc.querySelector('[data-template="money"]').click();
+  }
+  // 프라이버시: 백업/공유 버튼과 방침 링크가 보이는 하단까지 스크롤.
+  // 신뢰 마감: 1위 카드는 남겨 제품감을 유지하면서, 백업/공유 버튼과 방침 링크를 바로 그 아래로 당겨온다.
+  if (f.view === 'home-privacy') {
+    hide(doc, '.topbar'); hide(doc, '.question'); hide(doc, '.template-row');
+    hide(doc, '#job-count-label'); hide(doc, '#explain-text');
+    doc.querySelectorAll('#job-list .job-card').forEach(function (el, i) { if (i > 0) el.style.display = 'none'; });
+    doc.querySelector('.secondary-row').style.marginTop = '32px';
+  }
+
+  setTimeout(function () { window.__frameReady = true; }, 260);
 });
 iframe.src = '../docs/index.html';
 </script>
