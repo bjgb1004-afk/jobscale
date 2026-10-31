@@ -47,9 +47,10 @@
     return ((oneWayMin || 0) * 2 / 60) * (daysPerWeek || 0) * WEEKS_PER_MONTH;
   }
 
-  // 월급은 '만원' 단위 입력, 시급은 '원' 단위 입력 — 둘 다 '원'으로 환산해 반환.
+  // 월급은 '만원' 단위 입력, 시급·일급은 '원' 단위 입력 — 둘 다 '원'으로 환산해 반환.
   function monthlyPayWon(job, workHours) {
     if (job.pay.unit === 'hourly') return (job.pay.amount || 0) * workHours;
+    if (job.pay.unit === 'daily') return (job.pay.amount || 0) * (job.daysPerWeek || 0) * WEEKS_PER_MONTH;
     return (job.pay.amount || 0) * 10000;
   }
 

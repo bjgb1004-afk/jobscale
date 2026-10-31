@@ -192,4 +192,12 @@ var weightsEqual = { pay: 1, commute: 1, endTime: 1, startTime: 1, days: 1, inte
   console.log('OK 11: 시급 공고 MIN_PAY 탈락 사유에 부동소수 노출 없음');
 })();
 
+(function testDailyPay() {
+  // 일급(daily)은 시급처럼 '원' 단위 입력. 월급 = 일급 × 주당근무일수 × 한달 주수.
+  var daily = { pay: { amount: 100620, unit: 'daily' }, daysPerWeek: 5 };
+  var expected = 100620 * 5 * 4.345;
+  approx(S.monthlyPayWon(daily, 0), expected, 1);
+  console.log('OK 12: 일급(daily) 월급 환산');
+})();
+
 console.log('\n모든 테스트 통과.');

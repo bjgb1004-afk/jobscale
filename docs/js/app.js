@@ -319,11 +319,11 @@
   }
 
   // ---------- 공고 등록 폼 (P1) ----------
-  // score.js가 월급=만원 단위, 시급=원 단위로 계산하므로(monthlyPayWon 참고) 입력창
+  // score.js가 월급=만원 단위, 시급·일급=원 단위로 계산하므로(monthlyPayWon 참고) 입력창
   // 옆에 단위를 보여줘야 사람이 헷갈려서 10000배 틀린 값을 넣는 걸 막을 수 있다.
   function updatePayUnitLabel() {
-    var isHourly = document.getElementById('jf-payType').value === 'hourly';
-    document.getElementById('jf-payUnit').textContent = t(isHourly ? 'unit.won' : 'unit.manwon');
+    var isMonthly = document.getElementById('jf-payType').value === 'monthly';
+    document.getElementById('jf-payUnit').textContent = t(isMonthly ? 'unit.manwon' : 'unit.won');
   }
 
   // prefill: 공유하기로 들어온 공고를 파싱한 값(shareParse 결과). 새 공고(id 없음)일 때만 쓰임.
@@ -488,6 +488,52 @@
     bindDeleteButtons(el, renderCompare);
   }
 
+  // ---------- 임금계산기 ----------
+  // calc-type이 시급/일급이면 '원' 단위 입력, 월급/연봉이면 '만원' 단위 입력
+  // (등록폼의 updatePayUnitLabel과 같은 이유 — 숫자를 1만배 잘못 넣는 실수를 막음).
+  function updateCalcUnitLabel() {
+    var type = document.getElementById('calc-type').value;
+    var isWon = type === 'hourly' || type === 'daily';
+    document.getElementById('calc-amount-unit').textContent = t(isWon ? 'unit.won' : 'unit.manwon');
+  }
+
+  function won(n) { return Math.round(n).toLocaleString() + t('wage.won'); }
+
+  function runCalculator() {
+    document.getElementById('calc-amount-err').textContent = '';
+    var amountInput = document.getElementById('calc-amount').value;
+    if (!amountInput) {
+      document.getElementById('calc-amount-err').textContent = t('job.validation.required');
+      return;
+    }
+    if (isNaN(Number(amountInput)) || Number(amountInput) < 0) {
+      document.getElementById('calc-amount-err').textContent = t('job.validation.number');
+      return;
+    }
+    var type = document.getElementById('calc-type').value;
+    var isManwon = type === 'monthly' || type === 'annual';
+    var amount = Number(amountInput) * (isManwon ? 10000 : 1);
+    var hoursPerDay = Number(document.getElementById('calc-hoursPerDay').value) || 0;
+    var daysPerWeek = Number(document.getElementById('calc-daysPerWeek').value) || 0;
+    var dependents = parseInt(document.getElementById('calc-dependents').value, 10) || 1;
+
+    var converted = WageCalc.convertAll({ type: type, amount: amount, hoursPerDay: hoursPerDay, daysPerWeek: daysPerWeek });
+    var net = WageCalc.netPay(converted.monthly, dependents);
+
+    var el = document.getElementById('calc-result');
+    el.hidden = false;
+    el.innerHTML =
+      '<h3>' + t('calc.result.pretaxTitle') + '</h3>' +
+      '<div class="calc-row"><span>' + t('calc.result.hourly') + '</span><span>' + won(converted.hourly) + '</span></div>' +
+      '<div class="calc-row"><span>' + t('calc.result.daily') + '</span><span>' + won(converted.daily) + '</span></div>' +
+      '<div class="calc-row"><span>' + t('calc.result.monthly') + '</span><span>' + won(converted.monthly) + '</span></div>' +
+      '<div class="calc-row"><span>' + t('calc.result.annual') + '</span><span>' + won(converted.annual) + '</span></div>' +
+      '<h3>' + t('calc.result.deductionTitle') + '</h3>' +
+      '<div class="calc-row"><span>' + t('calc.result.insurance') + '</span><span>-' + won(net.insurance.total) + '</span></div>' +
+      '<div class="calc-row"><span>' + t('calc.result.tax') + '</span><span>-' + won(net.tax.total) + '</span></div>' +
+      '<div class="calc-row net"><span>' + t('calc.result.net') + '</span><span>' + won(net.net) + '</span></div>';
+  }
+
   // ---------- 백업/복원 (P7) ----------
   function exportBackup() {
     var data = { jobs: state.jobs, weights: state.weights, limits: state.limits, targets: state.targets, savedAt: new Date().toISOString() };
@@ -594,6 +640,9 @@
     document.getElementById('jf-delete').addEventListener('click', deleteJob);
     document.getElementById('jf-payType').addEventListener('change', updatePayUnitLabel);
     document.getElementById('jf-paste-apply').addEventListener('click', applyPastedText);
+    document.getElementById('calc-type').addEventListener('change', updateCalcUnitLabel);
+    document.getElementById('calc-submit-btn').addEventListener('click', runCalculator);
+    updateCalcUnitLabel();
 
     JobScore.SCORE_KEYS.forEach(function (key) {
       var input = document.querySelector('[data-weight="' + key + '"]');

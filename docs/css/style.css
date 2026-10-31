@@ -253,6 +253,18 @@ h3 { font-size: 0.8rem; color: var(--muted); font-weight: 600; margin: 1.4rem 0 
 .field-row span:not(.field-error) { font-size: 0.8rem; color: var(--muted); }
 .field-error { flex-basis: 100%; color: var(--danger); font-size: 0.78rem; }
 
+.calc-result {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.9rem;
+  margin-top: 1rem;
+}
+.calc-result h3 { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--muted); }
+.calc-row { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); }
+.calc-row:last-child { border-bottom: none; }
+.calc-row.net { font-weight: 800; font-size: 1.05rem; color: var(--accent); border-top: 2px solid var(--border); margin-top: 0.3rem; padding-top: 0.6rem; }
+
 details.target-details, details.jobform-more, details.copy-help {
   border: none; border-radius: var(--radius); box-shadow: var(--shadow);
   padding: 0.7rem 0.9rem; margin-top: 0.9rem; background: var(--surface);

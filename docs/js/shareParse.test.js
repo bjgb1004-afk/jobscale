@@ -55,16 +55,16 @@ t('주급 → 월급(만원)으로 환산', function () {
   assert.strictEqual(r.payType, 'monthly');
 });
 
-t('일급 + 주N일 → 월급(만원)으로 환산', function () {
+t('일급은 원 단위 그대로 저장 — score.js가 daily 단위로 직접 계산함', function () {
   var r = ShareParse.parse({ title: '', text: '일급 100,620원 / 주5일', url: '' });
-  assert.strictEqual(r.payAmount, 219); // 10.062만원 * 5일 * 4.345주
-  assert.strictEqual(r.payType, 'monthly');
+  assert.strictEqual(r.payAmount, 100620);
+  assert.strictEqual(r.payType, 'daily');
 });
 
-t('일급인데 근무일수를 모르면 급여를 비워둔다 — 추측하면 순위가 통째로 틀어짐', function () {
-  var r = ShareParse.parse({ title: '', text: '일급 100,620원 / 요일협의', url: '' });
-  assert.strictEqual(r.payAmount, null);
-  assert.strictEqual(r.payType, null);
+t('일급이 만원 단위로 적혀있으면 원 단위로 환산', function () {
+  var r = ShareParse.parse({ title: '', text: '일급 10만원', url: '' });
+  assert.strictEqual(r.payAmount, 100000);
+  assert.strictEqual(r.payType, 'daily');
 });
 
 t('"일 최대 20만원" 같은 홍보문구를 급여로 오인하지 않음', function () {

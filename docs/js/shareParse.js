@@ -18,30 +18,25 @@
 
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
-  // score.js는 시급을 "원" 단위, 월급을 "만원" 단위로 저장한다고 가정하고 계산한다
-  // (monthlyPayWon = hourly면 amount 그대로, monthly면 amount*10000). 그래서 파싱된
-  // 숫자도 그 단위에 맞춰 변환해야 한다 — 안 맞추면 월급이 10000배로 계산되는 버그가 남.
-  // 실제 공고엔 연봉(사람인)·일급(알바천국)도 흔한데 score.js엔 그 단위가 없어서
-  // 전부 월급(만원)으로 환산해 넣는다.
-  function parsePay(text, daysPerWeek) {
+  // score.js는 시급·일급을 "원" 단위, 월급을 "만원" 단위로 저장한다고 가정하고 계산한다
+  // (monthlyPayWon 참고). 그래서 파싱된 숫자도 그 단위에 맞춰 변환해야 한다 — 안 맞추면
+  // 월급이 10000배로 계산되는 버그가 남. 연봉(사람인)은 score.js에 그 단위가 없어서
+  // 월급(만원)으로 환산해 넣는다.
+  function parsePay(text) {
     var m = text.match(/(시급|일급|주급|월급|연봉)\s*[:\-]?\s*([0-9][0-9,]*)\s*(만원|원)?/);
     if (!m) return { payAmount: null, payType: null };
     var amount = Number(m[2].replace(/,/g, ''));
     var kind = m[1];
 
-    if (kind === '시급') {
+    if (kind === '시급' || kind === '일급') {
       if (m[3] === '만원') amount *= 10000;
-      return { payAmount: amount, payType: 'hourly' };
+      return { payAmount: amount, payType: kind === '시급' ? 'hourly' : 'daily' };
     }
 
     var manwon = m[3] === '원' ? amount / 10000 : amount;
     if (kind === '월급') return { payAmount: Math.round(manwon), payType: 'monthly' };
     if (kind === '연봉') return { payAmount: Math.round(manwon / 12), payType: 'monthly' };
-    if (kind === '주급') return { payAmount: Math.round(manwon * WEEKS_PER_MONTH), payType: 'monthly' };
-    // 일급은 주 몇 일 나가는지를 알아야 월급이 나온다. "요일협의"처럼 알 수 없으면
-    // 비워둬서 사람이 직접 넣게 한다 — 임의로 5일을 가정하면 순위가 통째로 틀어진다.
-    if (!daysPerWeek) return { payAmount: null, payType: null };
-    return { payAmount: Math.round(manwon * daysPerWeek * WEEKS_PER_MONTH), payType: 'monthly' };
+    return { payAmount: Math.round(manwon * WEEKS_PER_MONTH), payType: 'monthly' }; // 주급
   }
 
   function parseTime(text) {
@@ -88,7 +83,7 @@
     var text = input && input.text || '';
     var combined = (title + '\n' + text).trim();
     var daysPerWeek = parseDays(combined);
-    var pay = parsePay(combined, daysPerWeek); // 일급 환산에 근무일수가 필요해 먼저 구한다
+    var pay = parsePay(combined);
     var time = parseTime(combined);
     return {
       name: parseName(title, text),
