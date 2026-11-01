@@ -2,7 +2,7 @@
  * 최소 서비스워커 — 앱 셸 캐싱, 오프라인 동작용.
  * 네트워크 우선 + 캐시 폴백. 온라인이면 항상 최신, 오프라인이면 마지막 캐시본.
  */
-var CACHE_NAME = 'jobscale-v19';
+var CACHE_NAME = 'jobscale-v20';
 var APP_SHELL = [
   './',
   './index.html',
@@ -38,8 +38,10 @@ self.addEventListener('fetch', function (event) {
   var url = new URL(event.request.url);
   // 네트워크 우선 — 캐시 우선이면 배포해도 다음 실행까지 옛 화면이 떠서, 버전만 올리는
   // 방식으로는 이 지연이 안 없어진다. 캐시는 오프라인 대비용으로만 쓴다.
+  // cache:'no-store'로 브라우저 HTTP 캐시도 건너뜀 — GitHub Pages가 max-age=600을
+  // 내려보내서, 이게 없으면 "네트워크 우선"이어도 배포 후 최대 10분은 옛 파일이 나온다.
   event.respondWith(
-    fetch(event.request).then(function (res) {
+    fetch(event.request, { cache: 'no-store' }).then(function (res) {
       if (res.ok && url.origin === self.location.origin && !url.search) {
         var copy = res.clone();
         caches.open(CACHE_NAME).then(function (cache) { cache.put(event.request, copy); });
