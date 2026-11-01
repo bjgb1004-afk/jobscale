@@ -66,3 +66,14 @@ function approx(actual, expected, eps, msg) {
   approx(net.net, expectedNet, 150, '실수령액');
   console.log('OK 4: 실수령액 = 월급 - 4대보험 - 세금');
 })();
+
+// ---------- 5. 비과세액(식대 등) — 월급 300만원 중 20만원 비과세 ----------
+(function testNetPayTaxFree() {
+  var netWithTaxFree = W.netPay(3000000, 1, null, 200000);
+  var netWithoutTaxFree = W.netPay(2800000, 1); // 비과세 뗀 280만원 자체를 과세대상으로 계산한 것과 같아야 함
+  approx(netWithTaxFree.insurance.total, netWithoutTaxFree.insurance.total, 1, '비과세 반영 4대보험');
+  approx(netWithTaxFree.tax.total, netWithoutTaxFree.tax.total, 1, '비과세 반영 세금');
+  // 실수령액은 원래 월급(300만) 기준이라 더 높아야 함
+  approx(netWithTaxFree.net, 3000000 - netWithoutTaxFree.deducted, 1, '비과세 반영 실수령액');
+  console.log('OK 5: 비과세액만큼 4대보험·세금 산정 기준에서 빠짐');
+})();

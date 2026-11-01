@@ -127,12 +127,15 @@
     };
   }
 
-  function netPay(monthlyWon, dependents, rates) {
-    var insurance = insuranceDeduction(monthlyWon, rates);
-    var tax = incomeTax(monthlyWon, dependents);
+  // taxFreeAmount: 비과세액(식대 등, 월 기준). 4대보험·세금 산정 기준에서 제외된다.
+  function netPay(monthlyWon, dependents, rates, taxFreeAmount) {
+    var taxableMonthly = Math.max(0, monthlyWon - (taxFreeAmount || 0));
+    var insurance = insuranceDeduction(taxableMonthly, rates);
+    var tax = incomeTax(taxableMonthly, dependents);
     var deducted = insurance.total + tax.total;
     return {
       gross: monthlyWon,
+      taxFreeAmount: taxFreeAmount || 0,
       insurance: insurance,
       tax: tax,
       deducted: deducted,

@@ -71,6 +71,7 @@ body {
   font-weight: 600;
   color: var(--muted);
   cursor: pointer;
+  white-space: nowrap;
 }
 .topnav button.active { background: var(--accent); color: #fff; }
 

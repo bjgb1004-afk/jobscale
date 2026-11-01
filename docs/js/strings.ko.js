@@ -123,6 +123,7 @@ var STRINGS_KO = {
   'calc.hoursPerDay': '하루 근무시간',
   'calc.daysPerWeek': '주당 근무일수',
   'calc.dependents': '부양가족 수(본인 포함)',
+  'calc.taxFree': '비과세액(식대 등, 월)',
   'calc.submit': '계산하기',
   'calc.result.pretaxTitle': '환산 급여 (세전)',
   'calc.result.hourly': '시급',

@@ -516,9 +516,10 @@
     var hoursPerDay = Number(document.getElementById('calc-hoursPerDay').value) || 0;
     var daysPerWeek = Number(document.getElementById('calc-daysPerWeek').value) || 0;
     var dependents = parseInt(document.getElementById('calc-dependents').value, 10) || 1;
+    var taxFree = Number(document.getElementById('calc-taxFree').value) || 0;
 
     var converted = WageCalc.convertAll({ type: type, amount: amount, hoursPerDay: hoursPerDay, daysPerWeek: daysPerWeek });
-    var net = WageCalc.netPay(converted.monthly, dependents);
+    var net = WageCalc.netPay(converted.monthly, dependents, null, taxFree);
 
     var el = document.getElementById('calc-result');
     el.hidden = false;
