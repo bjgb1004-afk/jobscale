@@ -517,9 +517,15 @@
     var daysPerWeek = Number(document.getElementById('calc-daysPerWeek').value) || 0;
     var dependents = parseInt(document.getElementById('calc-dependents').value, 10) || 1;
     var taxFree = Number(document.getElementById('calc-taxFree').value) || 0;
+    var otHours = Number(document.getElementById('calc-otHours').value) || 0;
+    var holHoursPerDay = Number(document.getElementById('calc-holHoursPerDay').value) || 0;
+    var holDays = Number(document.getElementById('calc-holDays').value) || 0;
 
     var converted = WageCalc.convertAll({ type: type, amount: amount, hoursPerDay: hoursPerDay, daysPerWeek: daysPerWeek });
-    var net = WageCalc.netPay(converted.monthly, dependents, null, taxFree);
+    // 가산수당은 기본급에서 역산한 통상시급 기준. 세전 총액에 더해야 4대보험·세금도 같이 늘어난다.
+    var extra = WageCalc.extraPay(converted.hourly, { overtimeHours: otHours, holidayHoursPerDay: holHoursPerDay, holidayDays: holDays });
+    var grossMonthly = converted.monthly + extra.total;
+    var net = WageCalc.netPay(grossMonthly, dependents, null, taxFree);
 
     var el = document.getElementById('calc-result');
     el.hidden = false;
@@ -529,6 +535,12 @@
       '<div class="calc-row"><span>' + t('calc.result.daily') + '</span><span>' + won(converted.daily) + '</span></div>' +
       '<div class="calc-row"><span>' + t('calc.result.monthly') + '</span><span>' + won(converted.monthly) + '</span></div>' +
       '<div class="calc-row"><span>' + t('calc.result.annual') + '</span><span>' + won(converted.annual) + '</span></div>' +
+      (extra.total > 0
+        ? '<h3>' + t('calc.result.extraTitle') + '</h3>' +
+          '<div class="calc-row"><span>' + t('calc.result.overtime') + '</span><span>+' + won(extra.overtime) + '</span></div>' +
+          '<div class="calc-row"><span>' + t('calc.result.holiday') + '</span><span>+' + won(extra.holiday) + '</span></div>' +
+          '<div class="calc-row net"><span>' + t('calc.result.grossTotal') + '</span><span>' + won(grossMonthly) + '</span></div>'
+        : '') +
       '<h3>' + t('calc.result.deductionTitle') + '</h3>' +
       '<div class="calc-row"><span>' + t('calc.result.insurance') + '</span><span>-' + won(net.insurance.total) + '</span></div>' +
       '<div class="calc-row"><span>' + t('calc.result.tax') + '</span><span>-' + won(net.tax.total) + '</span></div>' +

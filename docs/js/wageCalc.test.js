@@ -77,3 +77,32 @@ function approx(actual, expected, eps, msg) {
   approx(netWithTaxFree.net, 3000000 - netWithoutTaxFree.deducted, 1, '비과세 반영 실수령액');
   console.log('OK 5: 비과세액만큼 4대보험·세금 산정 기준에서 빠짐');
 })();
+
+// ---------- 6. 가산수당(잔업·특근) ----------
+(function testExtraPay() {
+  // 통상시급 10,000원
+  // 평일 잔업 월 20시간 → 10000*20*1.5 = 300,000
+  var a = W.extraPay(10000, { overtimeHours: 20 });
+  approx(a.overtime, 300000, 1, '평일 잔업 1.5배');
+  approx(a.holiday, 0, 1, '특근 없으면 0');
+
+  // 특근 하루 6시간 × 월 2회 → 8시간 이내라 전부 1.5배: 10000*2*(6*1.5) = 180,000
+  var b = W.extraPay(10000, { holidayHoursPerDay: 6, holidayDays: 2 });
+  approx(b.holiday, 180000, 1, '특근 8시간 이내 1.5배');
+  approx(b.holidayHours, 12, 0.01, '특근 총 시간');
+
+  // 특근 하루 10시간 × 월 1회 → 8시간 1.5배 + 2시간 2배: 10000*(8*1.5+2*2) = 160,000
+  var c = W.extraPay(10000, { holidayHoursPerDay: 10, holidayDays: 1 });
+  approx(c.holiday, 160000, 1, '특근 8시간 초과분 2배');
+
+  // 둘 다 있으면 합산
+  var d = W.extraPay(10000, { overtimeHours: 20, holidayHoursPerDay: 10, holidayDays: 1 });
+  approx(d.total, 300000 + 160000, 1, '잔업+특근 합산');
+
+  // 잔업수당도 과세대상 → 실수령액 계산 기준에 더해진다
+  var net = W.netPay(3000000 + d.total, 1, null, 0);
+  assert.ok(net.net > W.netPay(3000000, 1, null, 0).net, '가산수당 포함 시 실수령액 증가');
+  assert.ok(net.deducted > W.netPay(3000000, 1, null, 0).deducted, '가산수당도 공제 대상');
+
+  console.log('OK 6: 가산수당(잔업 1.5배 / 특근 8h 이내 1.5배·초과 2배) 공식 일치');
+})();

@@ -127,6 +127,28 @@
     };
   }
 
+  // 가산수당 — 근로기준법 §56. 통상시급 기준.
+  //   평일 연장근로: 1.5배 (월 합계 시간)
+  //   휴일(특근): 1일 8시간 이내 1.5배, 8시간 초과분 2배 → 그래서 "1회당 시간 × 월 횟수"로 받는다.
+  // 월 합계 시간 하나로 받으면 8시간 경계를 하루 단위로 못 자른다.
+  function extraPay(hourly, opts) {
+    opts = opts || {};
+    hourly = hourly || 0;
+    var otHours = Math.max(0, opts.overtimeHours || 0);
+    var holPerDay = Math.max(0, opts.holidayHoursPerDay || 0);
+    var holDays = Math.max(0, opts.holidayDays || 0);
+    var overtime = hourly * otHours * 1.5;
+    var holidayHours = holPerDay * holDays;
+    var holiday = hourly * holDays * (Math.min(holPerDay, 8) * 1.5 + Math.max(0, holPerDay - 8) * 2);
+    return {
+      overtimeHours: otHours,
+      overtime: overtime,
+      holidayHours: holidayHours,
+      holiday: holiday,
+      total: overtime + holiday
+    };
+  }
+
   // taxFreeAmount: 비과세액(식대 등, 월 기준). 4대보험·세금 산정 기준에서 제외된다.
   function netPay(monthlyWon, dependents, rates, taxFreeAmount) {
     var taxableMonthly = Math.max(0, monthlyWon - (taxFreeAmount || 0));
@@ -151,6 +173,7 @@
     convertAll: convertAll,
     insuranceDeduction: insuranceDeduction,
     incomeTax: incomeTax,
+    extraPay: extraPay,
     netPay: netPay
   };
 });
