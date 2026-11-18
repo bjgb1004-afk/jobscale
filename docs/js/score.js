@@ -141,7 +141,9 @@
     return { survivors: survivors, rejected: rejected };
   }
 
-  function computeRawScores(job, targets) {
+  // includeCommute=false면 통근 시간을 시급 계산에서 빼므로 실질시급 = 명목시급이 된다.
+  // (출퇴근 시간을 근무로 치는 건 이 앱의 관점일 뿐, 쓰는 사람이 고를 수 있어야 한다)
+  function computeRawScores(job, targets, includeCommute) {
     targets = targets || DEFAULT_TARGETS;
     var workHours = monthlyWorkHours(job.start, job.end, job.breakMin, job.daysPerWeek);
     var commuteHours = monthlyCommuteHours(job.commuteMin, job.daysPerWeek);
@@ -151,7 +153,7 @@
       commuteHours: commuteHours,
       monthlyPayWon: payWon,
       nominalWageWon: nominalWageWon(payWon, workHours),
-      realWageWon: realWageWon(payWon, workHours, commuteHours),
+      realWageWon: realWageWon(payWon, workHours, includeCommute === false ? 0 : commuteHours),
       commute: commuteScore(job.commuteMin, targets.commuteTarget),
       endTime: endTimeScore(job.end, targets.endTimeTarget),
       startTime: startTimeScore(job.start, targets.startTimeTarget),
@@ -180,7 +182,7 @@
    * 반환: { ranked: [{job, raw, total}], rejected: [{job, reasons}], error }
    * error: 'NO_JOBS' | 'ALL_REJECTED' | 'NO_WEIGHTS' | null
    */
-  function rankJobs(jobs, weights, targets, limits) {
+  function rankJobs(jobs, weights, targets, limits, includeCommute) {
     if (!jobs || jobs.length === 0) return { ranked: [], rejected: [], error: 'NO_JOBS' };
 
     var filtered = applyHardFilters(jobs, limits);
@@ -189,7 +191,7 @@
     }
 
     var raws = filtered.survivors.map(function (job) {
-      return { job: job, raw: computeRawScores(job, targets) };
+      return { job: job, raw: computeRawScores(job, targets, includeCommute) };
     });
     var realWages = raws.map(function (r) { return r.raw.realWageWon; });
     var payScores = payScoreBand(realWages);

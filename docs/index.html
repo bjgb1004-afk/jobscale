@@ -59,6 +59,15 @@
 
     <div id="criteria-live-rank" class="live-rank"></div>
 
+    <!-- 출퇴근 시간을 일한 시간으로 칠지는 사람마다 생각이 다르다 — 고를 수 있게 둔다. -->
+    <div class="option-row">
+      <label class="check-label">
+        <input type="checkbox" id="opt-includeCommute" checked>
+        <span data-i18n="criteria.includeCommute"></span>
+      </label>
+      <p class="hint" data-i18n="criteria.includeCommute.hint"></p>
+    </div>
+
     <h3 data-i18n="criteria.weightHeader"></h3>
     <div class="weight-list">
       <!-- 항목당: 라벨 + 네이티브 range 슬라이더(0~5) + 별 표시. 라이브러리 없음. -->

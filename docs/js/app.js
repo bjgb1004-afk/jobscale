@@ -10,7 +10,8 @@
     weights: 'jobscale.weights',
     limits: 'jobscale.limits',
     targets: 'jobscale.targets',
-    feedSido: 'jobscale.feedSido'
+    feedSido: 'jobscale.feedSido',
+    includeCommute: 'jobscale.includeCommute'
   };
 
   var TEMPLATES = {
@@ -57,6 +58,8 @@
     targets: load(STORAGE_KEYS.targets, JobScore.DEFAULT_TARGETS),
     editingJobId: null,
     viewOnly: false,
+    // 출퇴근 시간을 일한 시간으로 칠지 — 이 앱의 기본 관점은 '친다'지만 끌 수 있다.
+    includeCommute: load(STORAGE_KEYS.includeCommute, true) !== false,
     feedSido: load(STORAGE_KEYS.feedSido, null), // 마지막에 고른 지역을 기억한다
     feed: null,      // data/jobs.json 내용 (한 번만 받아서 재사용)
     feedState: 'idle' // idle | loading | error
@@ -145,9 +148,14 @@
       '<span class="needs-check-note">' + escapeHtml(notes) + '</span>';
   }
 
+  // 통근을 빼면 계산 결과가 곧 명목시급이다 — 숫자만 바꾸고 라벨을 두면 거짓말이 된다.
+  function wageLabel() {
+    return state.includeCommute ? t('wage.realLabel') : t('wage.nominalLabel');
+  }
+
   function renderHome() {
     updateTemplateButtons();
-    var result = JobScore.rankJobs(state.jobs, state.weights, state.targets, state.limits);
+    var result = JobScore.rankJobs(state.jobs, state.weights, state.targets, state.limits, state.includeCommute);
     var listEl = document.getElementById('job-list');
     var explainEl = document.getElementById('explain-text');
     document.getElementById('job-count-label').textContent = t('home.myJobs', { count: state.jobs.length });
@@ -180,7 +188,7 @@
           '<span class="job-name">' + escapeHtml(r.job.name) + '</span>' +
           renderNeedsCheck(r.job) +
           '<div class="job-foot">' +
-            '<span class="job-wage">' + t('wage.realLabel') + ' ' + Math.round(r.raw.realWageWon).toLocaleString() + t('wage.won') + '</span>' +
+            '<span class="job-wage">' + wageLabel() + ' ' + Math.round(r.raw.realWageWon).toLocaleString() + t('wage.won') + '</span>' +
             '<span class="job-score">' + Math.round(r.total) + '<i>' + t('score.suffix') + '</i></span>' +
           '</div>' +
           sourceLink +
@@ -312,7 +320,7 @@
   function renderCriteriaLiveRank() {
     var el = document.getElementById('criteria-live-rank');
     if (!el) return;
-    var result = JobScore.rankJobs(state.jobs, state.weights, state.targets, state.limits);
+    var result = JobScore.rankJobs(state.jobs, state.weights, state.targets, state.limits, state.includeCommute);
     if (result.ranked.length === 0) { el.innerHTML = ''; return; }
     el.innerHTML = result.ranked.map(function (r, i) {
       return '<div class="live-rank-row"><span>' + (i + 1) + '. ' + escapeHtml(r.job.name) +
@@ -573,7 +581,7 @@
 
   // ---------- 나란히 비교 (P5) ----------
   function renderCompare() {
-    var result = JobScore.rankJobs(state.jobs, state.weights, state.targets, state.limits);
+    var result = JobScore.rankJobs(state.jobs, state.weights, state.targets, state.limits, state.includeCommute);
     var el = document.getElementById('compare-table-wrap');
     if (result.ranked.length === 0) {
       el.innerHTML = '<p class="empty">' + t('compare.empty') + '</p>';
@@ -581,7 +589,7 @@
     }
     var rows = [
       { label: t('compare.pay'), get: function (r) { return Math.round(r.raw.monthlyPayWon / 10000) + t('unit.manwon'); } },
-      { label: t('compare.realWage'), get: function (r) { return Math.round(r.raw.realWageWon).toLocaleString() + t('wage.won'); } },
+      { label: wageLabel(), get: function (r) { return Math.round(r.raw.realWageWon).toLocaleString() + t('wage.won'); } },
       { label: t('compare.workTime'), get: function (r) { return r.job.start + '~' + r.job.end; } },
       { label: t('compare.commute'), get: function (r) { return r.job.commuteMin + t('unit.min'); } },
       { label: t('compare.days'), get: function (r) { return r.job.daysPerWeek + t('unit.day'); } },
@@ -769,6 +777,13 @@
     document.getElementById('jf-delete').addEventListener('click', deleteJob);
     document.getElementById('jf-payType').addEventListener('change', updatePayUnitLabel);
     document.getElementById('jf-paste-apply').addEventListener('click', applyPastedText);
+    var commuteOpt = document.getElementById('opt-includeCommute');
+    commuteOpt.checked = state.includeCommute;
+    commuteOpt.addEventListener('change', function () {
+      state.includeCommute = commuteOpt.checked;
+      persist(STORAGE_KEYS.includeCommute, state.includeCommute);
+      renderCriteria();
+    });
     document.getElementById('feed-sido').addEventListener('change', function (e) {
       state.feedSido = e.target.value;
       // 지역 선택은 내 비교 데이터가 아니라 화면 설정이다 — 공유 링크 열람 중에도

@@ -71,24 +71,26 @@ var PARENTING = {pay:3,commute:5,endTime:5,startTime:4,days:4,intensity:3,stabil
 var NO_LIMITS = {minPay:null,maxEndTime:null,maxCommute:null,maxDays:null};
 var PASTE_TEXT = '(주)해성식품 제조 생산직\n급여 일급 100,620원\n근무요일 주5일 (월~금)\n근무시간 08:00~17:00\n서울 강서구 마곡동';
 
-// 설치 결정에 미치는 영향이 큰 순서 — 핵심가치(1) → 진입장벽 해소(2) → 차별화 인사이트(3) →
-// 개인화(4~5) → 상세비교(6) → 스마트필터(7) → 신뢰 마감(8).
+// 설치 결정에 미치는 영향이 큰 순서 — 핵심가치(1) → 공고 조달(2) → 진입장벽 해소(3) →
+// 차별화 인사이트(4) → 개인화(5) → 상세비교(6) → 스마트필터(7) → 신뢰 마감(8).
+// 2026-11-18: "공고 찾기"(2)를 넣고 템플릿 버튼 프레임을 뺐다 — 템플릿은 5번(별점 조정)과
+// 같은 메시지였고, 공고 찾기는 "내가 공고를 다 입력해야 하나"라는 설치 직전의 망설임을 없앤다.
 var FRAMES = {
   1: { head:'공고 세 개, 뭐가 제일\n<em>나은</em> 건지 헷갈릴 때',
        sub:'급여·통근·퇴근시각을 내 기준대로 채점해 순위를 매깁니다.',
        limits:NO_LIMITS, view:'home' },
-  2: { head:'공고 글 복사해서\n<em>붙여넣기</em> 한 번이면 끝',
+  2: { head:'공고를 <em>앱 안에서</em>\n찾아 바로 담기',
+       sub:'공공기관 채용공고를 지역별 마감 임박순으로. 누르면 비교 목록에 바로 들어갑니다.',
+       limits:NO_LIMITS, view:'feed' },
+  3: { head:'공고 글 복사해서\n<em>붙여넣기</em> 한 번이면 끝',
        sub:'급여·근무시간·요일을 알아서 채웁니다. 일급도 월급으로 환산해 둡니다.',
        limits:NO_LIMITS, view:'paste' },
-  3: { head:'시급·월급·연봉\n<em>실수령액</em>까지 한 번에',
+  4: { head:'시급·월급·연봉\n<em>실수령액</em>까지 한 번에',
        sub:'4대보험료와 세금 뗀 진짜 받는 돈을, 계산기 없이 앱 안에서 바로 확인하세요.',
        limits:NO_LIMITS, view:'calculator' },
-  4: { head:'중요한 건\n<em>사람마다</em> 다릅니다',
+  5: { head:'중요한 건\n<em>사람마다</em> 다릅니다',
        sub:'별점을 옮기면 순위가 그 자리에서 바뀝니다. 내 우선순위대로.',
        limits:NO_LIMITS, view:'criteria' },
-  5: { head:'버튼 하나 누르면\n순위가 <em>다시</em> 매겨짐',
-       sub:'육아 병행형·돈 우선형 등 4가지 기본값 중 하나만 눌러도 충분합니다.',
-       limits:NO_LIMITS, view:'home-templates' },
   6: { head:'궁금했던 걸\n<em>한 표</em>에 나란히',
        sub:'월급·실질시급·통근·업무강도·주말근무까지 눈으로 직접 비교하세요.',
        limits:NO_LIMITS, view:'compare' },
@@ -109,6 +111,7 @@ document.getElementById('sub').textContent = f.sub;
 localStorage.setItem('jobscale.jobs', JSON.stringify(JOBS));
 localStorage.setItem('jobscale.weights', JSON.stringify(PARENTING));
 localStorage.setItem('jobscale.limits', JSON.stringify(f.limits));
+localStorage.setItem('jobscale.feedSido', JSON.stringify('007008')); // 경기 — 마감일이 섞여 D-day 칩이 다양하게 보인다
 localStorage.removeItem('jobscale.targets');
 
 var iframe = document.getElementById('app');
@@ -132,17 +135,16 @@ iframe.addEventListener('load', function () {
   if (f.view === 'calculator') {
     doc.querySelector('[data-nav="calculator"]').click();
     doc.getElementById('calc-amount').value = '300';
-    ['calc-hoursPerDay', 'calc-daysPerWeek', 'calc-dependents'].forEach(function (id) {
+    ['calc-hoursPerDay', 'calc-daysPerWeek', 'calc-dependents',
+     'calc-otHours', 'calc-holHoursPerDay', 'calc-holDays', 'calc-taxFree', 'calc-type'].forEach(function (id) {
       var input = doc.getElementById(id);
       if (input) input.closest('.field-row').style.display = 'none';
     });
+    hide(doc, '#view-calculator > h2'); hide(doc, '.topbar h1');
+    hide(doc, '#view-calculator .hint'); // 하단 고지문은 앱 안에 그대로 있다 — 잘린 채 보이면 지저분하므로 뺀다
     doc.getElementById('calc-submit-btn').click();
     var resultEl = doc.getElementById('calc-result');
-    if (resultEl) win.scrollTo(0, Math.max(0, resultEl.offsetTop - 40));
-  }
-  // 템플릿 원터치: 크롭 대신 실제로 "돈 우선형" 버튼을 눌러 순위가 바뀐 결과를 그대로 보여준다.
-  if (f.view === 'home-templates') {
-    doc.querySelector('[data-template="money"]').click();
+    if (resultEl) win.scrollTo(0, Math.max(0, resultEl.offsetTop - 230)); // 입력칸 라벨까지 보이게
   }
   // 프라이버시: 백업/공유 버튼과 방침 링크가 보이는 하단까지 스크롤.
   // 신뢰 마감: 1위 카드는 남겨 제품감을 유지하면서, 백업/공유 버튼과 방침 링크를 바로 그 아래로 당겨온다.
@@ -151,6 +153,21 @@ iframe.addEventListener('load', function () {
     hide(doc, '#job-count-label'); hide(doc, '#explain-text');
     doc.querySelectorAll('#job-list .job-card').forEach(function (el, i) { if (i > 0) el.style.display = 'none'; });
     doc.querySelector('.secondary-row').style.marginTop = '32px';
+  }
+
+  // 공고 찾기는 data/jobs.json을 받아와야 목록이 생긴다 — 렌더될 때까지 기다렸다가 찍는다.
+  if (f.view === 'feed') {
+    doc.querySelector('[data-nav="feed"]').click();
+    // 설명 문구는 헤드라인이 이미 하는 말이다 — 접어서 공고 카드를 세 장까지 올린다.
+    hide(doc, '#view-feed > h2'); hide(doc, '#view-feed > p.hint');
+    var tries = 0;
+    var waitFeed = setInterval(function () {
+      if (doc.querySelector('.feed-card') || ++tries > 60) {
+        clearInterval(waitFeed);
+        setTimeout(function () { window.__frameReady = true; }, 260);
+      }
+    }, 50);
+    return;
   }
 
   setTimeout(function () { window.__frameReady = true; }, 260);

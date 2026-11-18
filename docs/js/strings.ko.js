@@ -205,6 +205,11 @@ var STRINGS_KO = {
   'share.viewOnly': '공유받은 결과입니다 (읽기 전용)',
   'share.overwriteConfirm': '지금 수정하면 원래 내 데이터가 이 공유 결과로 덮어써집니다. 계속할까요?',
 
+  'criteria.includeCommute': '출퇴근 시간도 일한 시간으로 계산',
+  'criteria.includeCommute.hint': '켜면 왕복 통근 시간까지 더해 시급을 나눕니다(실질시급). 끄면 근무시간만으로 계산합니다(명목시급). 통근이 긴 공고를 어떻게 볼지는 사람마다 다르니 직접 고르세요.',
+  'wage.realShort': '실질시급',
+  'wage.nominalShort': '명목시급',
+
   'feed.title': '공공기관 채용공고 찾기',
   'feed.intro': '지방공기업·출자출연기관 공고를 마감 임박순으로 보여줍니다. 하루 한 번 갱신됩니다. (알바·시급 공고는 여기 없습니다)',
   'feed.region': '지역',

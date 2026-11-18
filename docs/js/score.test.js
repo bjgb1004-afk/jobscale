@@ -200,4 +200,19 @@ var weightsEqual = { pay: 1, commute: 1, endTime: 1, startTime: 1, days: 1, inte
   console.log('OK 12: 일급(daily) 월급 환산');
 })();
 
+(function testIncludeCommuteToggle() {
+  // 통근을 빼면 실질시급 = 명목시급이 되어야 한다(그게 '통근 미포함'의 정의).
+  var job = { id: 'c', name: '통근공고', pay: { amount: 295, unit: 'monthly' },
+    start: '09:00', end: '18:00', daysPerWeek: 5, commuteMin: 60, breakMin: 60,
+    intensity: 'normal', employmentType: 'regular', insurance: true };
+  var withCommute = S.rankJobs([job], weightsEqual, S.DEFAULT_TARGETS, {}, true).ranked[0].raw;
+  var without = S.rankJobs([job], weightsEqual, S.DEFAULT_TARGETS, {}, false).ranked[0].raw;
+  assert.ok(withCommute.realWageWon < without.realWageWon, '통근을 넣으면 시급이 낮아져야 한다');
+  approx(without.realWageWon, without.nominalWageWon, 0.01);
+  // 인자를 안 주면(기존 호출부) 예전처럼 통근 포함으로 동작해야 한다
+  var legacy = S.rankJobs([job], weightsEqual, S.DEFAULT_TARGETS, {}).ranked[0].raw;
+  approx(legacy.realWageWon, withCommute.realWageWon, 0.01);
+  console.log('OK 13: 통근 포함/미포함 토글');
+})();
+
 console.log('\n모든 테스트 통과.');
