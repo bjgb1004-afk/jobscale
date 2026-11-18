@@ -19,6 +19,7 @@
     <button type="button" data-nav="criteria" data-i18n="nav.criteria"></button>
     <button type="button" data-nav="compare" data-i18n="nav.compare"></button>
     <button type="button" data-nav="calculator" data-i18n="nav.calculator"></button>
+    <button type="button" data-nav="feed" data-i18n="nav.feed"></button>
     <button type="button" id="add-job-btn" data-i18n="nav.addJob"></button>
   </nav>
 </header>
@@ -332,6 +333,20 @@
     <p class="hint" data-i18n="calc.hint"></p>
   </section>
 
+  <!-- ⑥ 공고 찾기 (공공기관 채용공고 둘러보기 → 비교에 담기) -->
+  <section id="view-feed" class="view" hidden>
+    <h2 data-i18n="feed.title"></h2>
+    <p class="hint" data-i18n="feed.intro"></p>
+
+    <div class="field-row">
+      <label for="feed-sido" data-i18n="feed.region"></label>
+      <select id="feed-sido"></select>
+    </div>
+
+    <div id="feed-list"></div>
+    <p id="feed-source" class="hint"></p>
+  </section>
+
 </main>
 
 <footer>
@@ -344,6 +359,7 @@
 <script src="js/score.js"></script>
 <script src="js/wageCalc.js"></script>
 <script src="js/shareParse.js"></script>
+<script src="js/feedImport.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

@@ -28,6 +28,7 @@ var STRINGS_KO = {
   'nav.criteria': '내 기준',
   'nav.compare': '나란히 비교',
   'nav.calculator': '계산기',
+  'nav.feed': '공고 찾기',
   'nav.addJob': '공고 추가',
 
   'home.question': '어떤 게 제일 중요하세요?',
@@ -203,6 +204,27 @@ var STRINGS_KO = {
   'share.copied': '링크가 복사되었습니다.',
   'share.viewOnly': '공유받은 결과입니다 (읽기 전용)',
   'share.overwriteConfirm': '지금 수정하면 원래 내 데이터가 이 공유 결과로 덮어써집니다. 계속할까요?',
+
+  'feed.title': '공공기관 채용공고 찾기',
+  'feed.intro': '지방공기업·출자출연기관 공고를 마감 임박순으로 보여줍니다. 하루 한 번 갱신됩니다. (알바·시급 공고는 여기 없습니다)',
+  'feed.region': '지역',
+  'feed.loading': '공고를 불러오는 중…',
+  'feed.error': '목록을 불러오지 못했습니다. 인터넷 연결을 확인하고 다시 열어보세요.',
+  'feed.empty': '이 지역에 모집중인 공고가 없습니다. 다른 지역을 골라보세요.',
+  'feed.count': '모집중 {count}개',
+  'feed.dday': 'D-{days}',
+  'feed.ddayToday': '오늘 마감',
+  'feed.add': '비교에 담기',
+  'feed.added': '담김',
+  'feed.unpaid': '무급 공고',
+  'feed.incomeMin': '공고 기준 최소값',
+  'feed.incomeMax': '공고 기준 최대값',
+  'feed.source': '자료 제공: 행정안전부 한국지역정보개발원(공공데이터포털) · {updated} 기준',
+  'feed.addedToast': '비교 목록에 담았습니다. 근무시간·통근은 표준값이라 “확인 필요”를 눌러 고쳐주세요.',
+
+  'job.needsCheck': '확인 필요',
+  'job.needsCheck.hours': '근무시간·통근은 공고에 없어 표준값(09–18시, 주5일, 통근 0분)으로 넣었습니다. 고쳐야 실질시급이 맞습니다.',
+  'job.needsCheck.pay': '급여 미기재 — 직접 입력해야 점수가 맞습니다.',
 
   'pwa.install': '홈 화면에 추가'
 };

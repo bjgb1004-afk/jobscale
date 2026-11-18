@@ -1,0 +1,35 @@
+name: 공공 채용공고 갱신
+
+# 하루 한 번 공공데이터포털에서 공고를 받아 docs/data/jobs.json으로 커밋한다.
+# 앱(정적 사이트)은 이 파일만 읽으므로 인증키가 앱 소스에 노출되지 않는다.
+on:
+  schedule:
+    - cron: '0 20 * * *' # UTC 20:00 = 한국 새벽 5시
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: node scripts/fetchJobs.test.mjs
+      - run: node scripts/fetchJobs.mjs
+        env:
+          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+
+      # 내용이 바뀐 날만 커밋한다 — 안 그러면 매일 빈 커밋이 쌓인다.
+      - name: 변경분 커밋
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/data/jobs.json
+          git diff --cached --quiet && echo '변경 없음 — 커밋 생략' && exit 0
+          git commit -m "공공 채용공고 데이터 갱신 ($(TZ=Asia/Seoul date +%Y-%m-%d))"
+          git push

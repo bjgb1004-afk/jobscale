@@ -9,7 +9,8 @@
     jobs: 'jobscale.jobs',
     weights: 'jobscale.weights',
     limits: 'jobscale.limits',
-    targets: 'jobscale.targets'
+    targets: 'jobscale.targets',
+    feedSido: 'jobscale.feedSido'
   };
 
   var TEMPLATES = {
@@ -55,7 +56,10 @@
     limits: load(STORAGE_KEYS.limits, DEFAULT_LIMITS),
     targets: load(STORAGE_KEYS.targets, JobScore.DEFAULT_TARGETS),
     editingJobId: null,
-    viewOnly: false
+    viewOnly: false,
+    feedSido: load(STORAGE_KEYS.feedSido, null), // 마지막에 고른 지역을 기억한다
+    feed: null,      // data/jobs.json 내용 (한 번만 받아서 재사용)
+    feedState: 'idle' // idle | loading | error
   };
 
   function persistJobs() { persist(STORAGE_KEYS.jobs, state.jobs); }
@@ -107,6 +111,7 @@
     if (name === 'criteria') renderCriteria();
     if (name === 'compare') renderCompare();
     if (name === 'home') renderHome();
+    if (name === 'feed') openFeed();
     window.scrollTo(0, 0);
     if (!fromPopstate) {
       if (name === 'home') history.replaceState({ view: 'home' }, '');
@@ -128,6 +133,16 @@
     document.querySelectorAll('[data-template]').forEach(function (btn) {
       btn.classList.toggle('active', btn.getAttribute('data-template') === active);
     });
+  }
+
+  // 공고에서 담아온 job은 근무시간 등을 표준값으로 채웠다 — 추정값을 숨기지 않고 드러낸다.
+  // 카드를 누르면 수정 화면으로 가고, 거기서 저장하면 needsCheck 없는 job으로 덮여 배지가 사라진다.
+  function renderNeedsCheck(job) {
+    var fields = Array.isArray(job.needsCheck) ? job.needsCheck : [];
+    if (!fields.length) return '';
+    var notes = fields.map(function (f) { return t('job.needsCheck.' + f); }).join(' ');
+    return '<span class="needs-check">' + t('job.needsCheck') + '</span>' +
+      '<span class="needs-check-note">' + escapeHtml(notes) + '</span>';
   }
 
   function renderHome() {
@@ -162,6 +177,7 @@
         '<span class="job-rank">' + (i === 0 ? t('home.heroTag') : i + 1) + '</span>' +
         '<div class="job-main">' +
           '<span class="job-name">' + escapeHtml(r.job.name) + '</span>' +
+          renderNeedsCheck(r.job) +
           '<div class="job-foot">' +
             '<span class="job-wage">' + t('wage.realLabel') + ' ' + Math.round(r.raw.realWageWon).toLocaleString() + t('wage.won') + '</span>' +
             '<span class="job-score">' + Math.round(r.total) + '<i>' + t('score.suffix') + '</i></span>' +
@@ -455,6 +471,96 @@
     showView('home');
   }
 
+  // ---------- 공고 찾기 (공공기관 채용공고) ----------
+  // 앱은 서버가 없다(정적 사이트). 그래서 공공데이터 API를 브라우저에서 직접 부르지 않고,
+  // GitHub Actions가 하루 한 번 받아 커밋해둔 data/jobs.json만 읽는다 — 인증키가 앱에 안 들어간다.
+  function openFeed() {
+    if (state.feed || state.feedState === 'loading') { renderFeed(); return; }
+    state.feedState = 'loading';
+    renderFeed();
+    fetch('./data/jobs.json')
+      .then(function (res) { if (!res.ok) throw new Error('http ' + res.status); return res.json(); })
+      .then(function (data) { state.feed = data; state.feedState = 'idle'; })
+      .catch(function () { state.feedState = 'error'; })
+      .then(function () { renderFeed(); });
+  }
+
+  function jobBySourceUrl(url) {
+    if (!url) return null;
+    return state.jobs.filter(function (j) { return j.sourceUrl === url; })[0] || null;
+  }
+
+  function renderFeed() {
+    var listEl = document.getElementById('feed-list');
+    var sourceEl = document.getElementById('feed-source');
+    var selEl = document.getElementById('feed-sido');
+
+    if (state.feedState === 'loading') { listEl.innerHTML = '<p class="empty">' + t('feed.loading') + '</p>'; return; }
+    if (state.feedState === 'error' || !state.feed) { listEl.innerHTML = '<p class="notice">' + t('feed.error') + '</p>'; return; }
+
+    var regions = state.feed.regions || {};
+    var codes = Object.keys(regions);
+    if (!state.feedSido || codes.indexOf(state.feedSido) < 0) state.feedSido = codes[0] || null;
+    if (selEl.options.length !== codes.length) {
+      selEl.innerHTML = codes.map(function (c) {
+        return '<option value="' + escapeHtml(c) + '">' + escapeHtml(regions[c]) + '</option>';
+      }).join('');
+    }
+    selEl.value = state.feedSido;
+
+    // 공공데이터는 출처 표시가 이용 조건이다 — 선택이 아니다.
+    sourceEl.textContent = t('feed.source', { updated: state.feed.updated || '' });
+
+    // JSON이 최대 하루 묵을 수 있어 렌더 시점에도 마감 지난 건을 거른다.
+    var today = FeedImport.todayKST();
+    var items = FeedImport.visibleItems(state.feed.items, state.feedSido, today);
+    if (!items.length) { listEl.innerHTML = '<p class="empty">' + t('feed.empty') + '</p>'; return; }
+
+    var anyAdded = false;
+    var html = items.map(function (it) {
+      var left = FeedImport.daysLeft(it.end, today);
+      var added = !!jobBySourceUrl(it.url);
+      if (added) anyAdded = true;
+      var incomeNote = it.incomeBound === 'min' ? t('feed.incomeMin') : it.incomeBound === 'max' ? t('feed.incomeMax') : '';
+      var action = it.incomeWon === 0
+        ? '<span class="feed-unpaid">' + t('feed.unpaid') + '</span>'   // 무급은 점수로 견줄 게 없다
+        : '<button type="button" class="feed-add-btn" data-feed-id="' + escapeHtml(it.id) + '"' +
+          (added ? ' disabled>' + t('feed.added') : '>' + t('feed.add')) + '</button>';
+      return '<li class="feed-card">' +
+        '<div class="feed-head">' +
+          '<span class="feed-dday' + (left <= 3 ? ' urgent' : '') + '">' +
+            (left === 0 ? t('feed.ddayToday') : t('feed.dday', { days: left })) + '</span>' +
+          '<span class="feed-org">' + escapeHtml(it.org) + '</span>' +
+        '</div>' +
+        '<p class="feed-title">' + escapeHtml(it.title) + '</p>' +
+        '<p class="feed-meta">' + escapeHtml([it.jobType, it.field].filter(Boolean).join(' · ')) + '</p>' +
+        '<p class="feed-income">' + escapeHtml(it.income || '') +
+          (incomeNote ? ' <span class="feed-income-note">(' + incomeNote + ')</span>' : '') + '</p>' +
+        '<div class="feed-actions">' +
+          (it.url ? '<a class="job-source-link" href="' + escapeHtml(it.url) + '" target="_blank" rel="noopener">' + t('home.viewSource') + '</a>' : '') +
+          action +
+        '</div>' +
+        '</li>';
+    }).join('');
+
+    listEl.innerHTML = '<p class="hint">' + t('feed.count', { count: items.length }) + '</p>' +
+      '<ul class="feed-cards">' + html + '</ul>' +
+      (anyAdded ? '<p class="hint">' + t('feed.addedToast') + '</p>' : '');
+
+    listEl.querySelectorAll('.feed-add-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { addFromFeed(btn.getAttribute('data-feed-id')); });
+    });
+  }
+
+  // 등록 폼을 거치지 않으므로, 폼이 보장하던 유효성을 feedImport.js가 대신 지킨다.
+  function addFromFeed(id) {
+    var item = ((state.feed && state.feed.items) || []).filter(function (i) { return i.id === id; })[0];
+    if (!item || jobBySourceUrl(item.url)) return;
+    state.jobs.push(FeedImport.buildJob(item, uid()));
+    persistJobs();
+    renderFeed();
+  }
+
   // ---------- 나란히 비교 (P5) ----------
   function renderCompare() {
     var result = JobScore.rankJobs(state.jobs, state.weights, state.targets, state.limits);
@@ -653,6 +759,13 @@
     document.getElementById('jf-delete').addEventListener('click', deleteJob);
     document.getElementById('jf-payType').addEventListener('change', updatePayUnitLabel);
     document.getElementById('jf-paste-apply').addEventListener('click', applyPastedText);
+    document.getElementById('feed-sido').addEventListener('change', function (e) {
+      state.feedSido = e.target.value;
+      // 지역 선택은 내 비교 데이터가 아니라 화면 설정이다 — 공유 링크 열람 중에도
+      // persist()의 "덮어쓸까요?" 확인을 띄우지 않고 바로 기억한다.
+      try { localStorage.setItem(STORAGE_KEYS.feedSido, JSON.stringify(state.feedSido)); } catch (err) {}
+      renderFeed();
+    });
     document.getElementById('calc-type').addEventListener('change', updateCalcUnitLabel);
     document.getElementById('calc-submit-btn').addEventListener('click', runCalculator);
     updateCalcUnitLabel();

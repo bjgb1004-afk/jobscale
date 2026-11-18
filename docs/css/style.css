@@ -327,3 +327,37 @@ footer { max-width: 640px; margin: 2rem auto 0; padding: 0 1rem; text-align: cen
 @media (min-width: 500px) {
   .weight-row { grid-template-columns: 7rem 1fr 5rem; }
 }
+
+/* ---------- 공고 찾기 (공공기관 채용공고) ---------- */
+/* 목록은 "마감이 급한지"가 가장 먼저 보여야 한다 — D-day를 칩으로 맨 앞에 둔다. */
+.feed-cards { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+.feed-card {
+  background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 0.8rem 0.9rem;
+}
+.feed-head { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.3rem; }
+.feed-dday {
+  flex-shrink: 0; font-size: 0.72rem; font-weight: 800; padding: 0.12rem 0.42rem;
+  border-radius: 999px; background: var(--accent-weak); color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.feed-dday.urgent { background: var(--danger); color: #fff; }
+.feed-org { font-size: 0.78rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.feed-title { font-size: 0.92rem; font-weight: 700; line-height: 1.35; }
+.feed-meta, .feed-income { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+.feed-income-note { font-size: 0.72rem; }
+.feed-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-top: 0.5rem; }
+.feed-add-btn {
+  padding: 0.42rem 0.8rem; border: none; border-radius: 999px;
+  background: var(--accent); color: #fff; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+}
+.feed-add-btn[disabled] { background: var(--border); color: var(--muted); cursor: default; }
+.feed-unpaid { font-size: 0.78rem; color: var(--muted); margin-left: auto; }
+
+/* 추정값을 숨기지 않는다 — 담아온 공고는 고쳐야 실질시급이 맞는다는 걸 카드에서 바로 말한다. */
+.needs-check {
+  display: inline-block; margin-top: 0.3rem; font-size: 0.7rem; font-weight: 800;
+  padding: 0.1rem 0.4rem; border-radius: 999px; background: var(--danger); color: #fff;
+}
+.needs-check-note { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; line-height: 1.35; }
+.job-card.hero .needs-check-note { color: var(--hero-ink-weak); }
