@@ -160,6 +160,7 @@
     }
     if (result.error === 'ALL_REJECTED') {
       listEl.innerHTML = '<p class="notice">' + t('home.allRejected') + '</p>' + renderRejectedList(result.rejected);
+      bindCardOpen(listEl);
       bindDeleteButtons(listEl, renderHome);
       return;
     }
@@ -195,13 +196,19 @@
     var explain = JobScore.explainData(result.ranked, state.weights);
     explainEl.textContent = buildExplainSentence(explain);
 
-    listEl.querySelectorAll('.job-card').forEach(function (card) {
+    bindCardOpen(listEl);
+    bindDeleteButtons(listEl, renderHome);
+  }
+
+  // 카드를 누르면 수정 화면. 전부 탈락한 경우에도 붙여야 한다 — 안 그러면 조건에 걸린 공고를
+  // 고칠 길이 삭제밖에 없다(담아온 공고는 추정값 때문에 전부 탈락하는 일이 실제로 생긴다).
+  function bindCardOpen(container) {
+    container.querySelectorAll('.job-card').forEach(function (card) {
       card.addEventListener('click', function (e) {
-        if (e.target.closest('.job-source-link') || e.target.closest('.job-delete-btn')) return;
+        if (e.target.closest('.job-source-link') || e.target.closest('.job-delete-btn') || e.target.closest('.reject-delete-btn')) return;
         openJobForm(card.getAttribute('data-id'));
       });
     });
-    bindDeleteButtons(listEl, renderHome);
   }
 
   // 순위 목록(job-delete-btn)과 탈락 카드(reject-delete-btn) 둘 다 같은 공용 삭제 버튼 패턴.
@@ -224,6 +231,9 @@
         '<span class="job-name">' + escapeHtml(r.job.name) + '</span>' +
         '<span class="reject-label">' + t('home.rejectedLabel') + '</span>' +
         '<span class="reject-reason">' + escapeHtml(reasonText) + '</span>' +
+        // 담아온 공고는 퇴근시간 등이 추정값이라 그것 때문에 탈락하기 쉽다.
+        // 탈락 카드에서도 "이 값은 추정"이라고 말해주지 않으면 고칠 생각을 못 한다.
+        renderNeedsCheck(r.job) +
         '<button type="button" class="reject-delete-btn" data-id="' + r.job.id + '" aria-label="' + t('job.delete') + '">✕</button>' +
         '</li>';
     }).join('') + '</ul>';
